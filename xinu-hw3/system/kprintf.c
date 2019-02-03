@@ -30,6 +30,7 @@ syscall kgetc(void)
     //       once the receiver is not empty, get character c.
     
     
+    
 
     return SYSERR;
 }
@@ -67,7 +68,7 @@ syscall kungetc(unsigned char c)
  *
  * @param c
  *      The character to write.
- *
+ *e
  * @return
  *      The character written to the UART as an <code>unsigned char</code> cast
  *      to an <code>int</code>.
@@ -81,7 +82,16 @@ syscall kputc(uchar c)
 
     // TODO: Check UART flags register.
     //       Once the Transmitter FIFO is not full, send character c.
-
+    
+    while(regptr->fr & PL011_FR_TXFF)
+    {
+        ;
+    }
+    
+   // while(!((regptr->fr) & PL011_FR_TXEF))//register pointer is pointing to the flag regiser and checking if the Transmitter FIFO is not full// 
+      //  {
+            regptr->dr = c;//register pointer goes to data regiser and sends 'c'//
+       // }
     return SYSERR;
 }
 
