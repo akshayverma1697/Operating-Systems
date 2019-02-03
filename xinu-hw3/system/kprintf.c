@@ -29,7 +29,11 @@ syscall kgetc(void)
     //       Otherwise, check UART flags register, and
     //       once the receiver is not empty, get character c.
     
-    
+    int i;
+    for(i=0; i<UNGETMAX; i++)
+    {
+        
+    }
     
 
     return SYSERR;
@@ -45,6 +49,12 @@ syscall kcheckc(void)
     regptr = (struct pl011_uart_csreg *)0x3F201000;
 
     // TODO: Check the unget buffer and the UART for characters.
+    
+    if(regptr->fr & PL011_FR_BUSY) //This should check if a character is available in UART//
+    {
+        return true;
+    }
+    
 
     return SYSERR;
 }
@@ -73,6 +83,7 @@ syscall kungetc(unsigned char c)
  *      The character written to the UART as an <code>unsigned char</code> cast
  *      to an <code>int</code>.
  */
+
 syscall kputc(uchar c)
 {
     volatile struct pl011_uart_csreg *regptr;
@@ -88,10 +99,8 @@ syscall kputc(uchar c)
         ;
     }
     
-   // while(!((regptr->fr) & PL011_FR_TXEF))//register pointer is pointing to the flag regiser and checking if the Transmitter FIFO is not full// 
-      //  {
-            regptr->dr = c;//register pointer goes to data regiser and sends 'c'//
-       // }
+    regptr->dr = c;//register pointer goes to data regiser and sends 'c'//
+    
     return SYSERR;
 }
 
