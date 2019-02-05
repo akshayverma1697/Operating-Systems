@@ -1,3 +1,5 @@
+//TA-BOT: MAILTO <joshuah.solito@marquette.edu>
+//TA-BOT: MAILTO <akshay.verma@marquette.edu>
 /**
  * @file testcases.c
  * @provides testcases
@@ -24,18 +26,50 @@ devcall putc(int dev, char c)
  */
 void testcases(void)
 {
-    int c;
+    int c = 0;
 
     kprintf("===TEST BEGIN===\r\n");
-
-    c = kgetc();
+    
+    while(!(isalpha(c)))
+    {
+        c = kgetc();
+    }
+    
     switch (c)
     {
 
         // TODO: Test your operating system!
-
-    default:
-        kprintf("Hello Xinu World!\r\n");
+        case 'A':
+            kputc(c);
+            break;
+        case 'B':
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            kungetc(c);
+            if(kungetc(c) == SYSERR)
+            {
+                kprintf("ERROR--GOOD");
+            }
+            else
+            {
+                kprintf("NO ERROR--BAD");
+            }
+            break;
+        case 'C':
+            kgetc('h');
+            kgetc('e');
+            kgetc('l');
+            kgetc('l');
+            kgetc('o');
+        default:
+            kprintf("Hello Xinu World!\r\n");
     }
 
 
