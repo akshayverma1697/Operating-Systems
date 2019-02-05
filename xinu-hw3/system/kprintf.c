@@ -86,7 +86,8 @@ syscall kungetc(unsigned char c)
     // TODO: Check for room in unget buffer, put the character in or discard.
 	if(unbuf < UNGETMAX) // if index is less then array max size
 	{
-		ungetArray[unbuf++] = c; // add c to ungetArray and increment unbuf by 1
+		ungetArray[unbuf] = c;// add c to ungetArray and increment unbuf by 1
+		unbuf++;
 	}
 
     return SYSERR;
