@@ -1,3 +1,5 @@
+//TA-BOT: MAILTO <akshay.verma@marquette.edu>//
+//TA-BOT: MAILTO <joshuah.solito@marquette.edu>//
 /**
  * @file kprintf.c
  */
@@ -9,7 +11,7 @@
 #define UNGETMAX 10             /* Can un-get at most 10 characters. */
 
 static unsigned char ungetArray[UNGETMAX];
-int unbuf = 0; // index for ungetArray
+int unbuf = 0; // index for ungetArray (current empty space)
 
 /**
  * Synchronously read a character from a UART.  This blocks until a character is
@@ -33,30 +35,19 @@ syscall kgetc(void)
 	// JOSH
     // on assignment website, kungetc should hold K&R's getch() and ungetch() functions
 	// might have to transfer this
-	if(sizeof(ungetArray) > 0) // check if anything is stored in ungetArray
+	if(unbuf > 0) // if no character stored in array
 	{
-		
-	}
-	else
-	{
-		while(regptr->fr & PL011_FR_RXFE) // wait while receive flag is empty
-		{
-			;
-		}
-		// get character c with data register? 
-		// (unbuf > 0) ? ungetArray[--unbuf] : getchar();
-	}
-
-	// AKSHAY
-	int i;
-    for(i=0; i<UNGETMAX; i++)
-    {
+        return (int) ungetArray[unbuf--];
         
     }
-
-
-    
-
+    else
+    {
+		while(regptr->fr & PL011_FR_RXFE) // wait while receive flag is empty
+        {
+                ;
+        }
+        return (int) regptr->dr; // return character in data register
+	}
     return SYSERR;
 }
 
@@ -71,9 +62,14 @@ syscall kcheckc(void)
 
     // TODO: Check the unget buffer and the UART for characters.
     
-    if(regptr->fr & PL011_FR_BUSY) //This should check if a character is available in UART//
+    
+    if((regptr->fr & PL011_FR_BUSY) || (unbuf > 0)) //This should check if a character is available in UART//
     {
-        return true;
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
     
 
