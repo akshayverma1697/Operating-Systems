@@ -40,6 +40,7 @@ void testcases(void)
 
         // TODO: Test your operating system!
         case 'A':
+            kprintf("Running putc command");
             kputc(c);
             break;
         case 'B':
@@ -63,11 +64,15 @@ void testcases(void)
             }
             break;
         case 'C':
-            kgetc('h');
-            kgetc('e');
-            kgetc('l');
-            kgetc('l');
-            kgetc('o');
+            kungetc(c);
+            if(kungetc(c)==SYSERR)
+            {
+                kprintf("ERROR--BAD");
+            }
+            else
+            {
+                kprintf("NO ERROR--GOOD");
+            }
         default:
             kprintf("Hello Xinu World!\r\n");
     }
