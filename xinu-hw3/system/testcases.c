@@ -1,5 +1,4 @@
-//TA-BOT: MAILTO <joshuah.solito@marquette.edu>
-//TA-BOT: MAILTO <akshay.verma@marquette.edu>
+//TA-BOT: MAILTO <joshuah.solito@marquette.edu akshay.verma@marquette.edu>
 /**
  * @file testcases.c
  * @provides testcases
