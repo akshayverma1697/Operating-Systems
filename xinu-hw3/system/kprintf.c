@@ -88,8 +88,8 @@ syscall kungetc(unsigned char c)
 	{
 		ungetArray[unbuf] = c;// add c to ungetArray and increment unbuf by 1
 		unbuf++;
+        return c;
 	}
-
     return SYSERR;
 }
 

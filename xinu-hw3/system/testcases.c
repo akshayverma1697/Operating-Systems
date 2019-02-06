@@ -40,10 +40,12 @@ void testcases(void)
 
         // TODO: Test your operating system!
         case 'A':
-            kprintf("Running putc command");
+            kprintf("Running putc command:\r\n");
             kputc(c);
             break;
         case 'B':
+            //Check to see if you get error from running unget method to many times
+            kprintf("Running unget method:\r\n");
             kungetc(c);
             kungetc(c);
             kungetc(c);
@@ -56,22 +58,33 @@ void testcases(void)
             kungetc(c);
             if(kungetc(c) == SYSERR)
             {
-                kprintf("ERROR--GOOD");
+                kprintf("ERROR--GOOD\r\n");
             }
             else
             {
-                kprintf("NO ERROR--BAD");
+                kprintf("NO ERROR--BAD\r\n");
             }
             break;
         case 'C':
-            kungetc(c);
+            //Check to see if the unget method runs single time--no error
+            kprintf("Running unget method:\r\n");
             if(kungetc(c)==SYSERR)
             {
-                kprintf("ERROR--BAD");
+                kprintf("ERROR--BAD\r\n");
             }
             else
             {
-                kprintf("NO ERROR--GOOD");
+                kprintf("NO ERROR--GOOD\r\n");
+            }
+        case 'D':
+            kprintf("Running checkc method\r\n");
+            if(kcheckc()==1)
+            {
+                kprintf("TRUE\r\n");
+            }
+            else
+            {
+                kprintf("FALSE\r\n");
             }
         default:
             kprintf("Hello Xinu World!\r\n");
