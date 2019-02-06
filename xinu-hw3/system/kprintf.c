@@ -63,7 +63,7 @@ syscall kcheckc(void)
     // TODO: Check the unget buffer and the UART for characters.
     
     
-    if((regptr->fr & PL011_FR_BUSY) || (unbuf > 0)) //This should check if a character is available in UART//
+    if((!(regptr->fr & PL011_FR_RXFE)) || (unbuf > 0)) //This should check if a character is available in UART//
     {
         return 1;
     }
