@@ -1,4 +1,4 @@
-//TA-BOT: MAILTO <joshuah.solito@marquette.edu akshay.verma@marquette.edu>
+//TA-BOT: MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu//
 /**
  * @file testcases.c
  * @provides testcases
@@ -55,7 +55,7 @@ void testcases(void)
             kungetc(c);
             kungetc(c);
             kungetc(c);
-            if(kungetc(c) == SYSERR)
+            if(kungetc(c) == SYSERR)//11>10 so it should return Error
             {
                 kprintf("ERROR--GOOD\r\n");
             }
@@ -75,7 +75,9 @@ void testcases(void)
             {
                 kprintf("NO ERROR--GOOD\r\n");
             }
+            break;
         case 'D':
+            //check to see if the checkc method will return True
             kprintf("Running checkc method\r\n");
             if(kcheckc()==1)
             {
@@ -85,6 +87,28 @@ void testcases(void)
             {
                 kprintf("FALSE\r\n");
             }
+            break;
+        case 'E':
+            //Should print H
+            kprintf("Running ungetc method for a single character:\r\n");
+            kungetc('H');
+            kputc(kgetc());
+            kprintf("\r\n");
+            break;
+        case 'F':
+            //Should print Hello backwards
+            kungetc('H');
+            kungetc('E');
+            kungetc('L');
+            kungetc('L');
+            kungetc('O');
+            kputc(kgetc());
+            kputc(kgetc());
+            kputc(kgetc());
+            kputc(kgetc());
+            kputc(kgetc());
+            kprintf("\r\n");
+            break;
         default:
             kprintf("Hello Xinu World!\r\n");
     }

@@ -1,4 +1,4 @@
-//TA-BOT: MAILTO <akshay.verma@marquette.edu joshuah.solito@marquette.edu>//
+//TA-BOT: MAILTO akshay.verma@marquette.edu joshuah.solito@marquette.edu//
 /**
  * @file kprintf.c
  */
@@ -36,7 +36,8 @@ syscall kgetc(void)
 	// might have to transfer this
 	if(unbuf > 0) // if no character stored in array
 	{
-        return (int) ungetArray[unbuf--];
+        unbuf--;
+        return (int) ungetArray[unbuf];
         
     }
     else
