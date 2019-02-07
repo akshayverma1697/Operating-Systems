@@ -93,15 +93,15 @@ void testcases(void)
             kprintf("Running ungetc method for a single character:\r\n");
             kungetc('H');
             kputc(kgetc());
-            while(kcheckc()==1)
+            while(kcheckc()==1)//character is available
             {
-                kputc(kgetc());
+                kputc(kgetc());//begins printing available character
             }
-            if(kcheckc()==0)
+            if(kcheckc()==0)//check to make sure no more characters are left
             {
                 kprintf("\r\nNo characters left--GOOD");
             }
-            else
+            else//fix code if this returns
             {   
                 kprintf("\r\ncharacters available--BAD");
             }
@@ -114,9 +114,9 @@ void testcases(void)
             kungetc('L');
             kungetc('L');
             kungetc('O');
-            while(kcheckc()==1)
+            while(kcheckc()==1)//check to see if characters are available
             {
-                kputc(kgetc());
+                kputc(kgetc());//print all available characters
             }
             kprintf("\r\n");
             break;
@@ -126,17 +126,17 @@ void testcases(void)
             kungetc('L');
             kungetc('E');
             kungetc('H');
-            if(kcheckc()==1)
+            if(kcheckc()==1)//check to see if characters are available
             {
-                kprintf("characters ready, printing: \n\r");
+                kprintf("characters ready, printing: \n\r");//tells user characters are available
             }
             while(kcheckc()==1)
             {
-                kputc(kgetc());
+                kputc(kgetc());//begin printing all available characters
             }
-            if(kcheckc()==0)
+            if(kcheckc()==0)//make sure no more characters are available
             {
-                kprintf("\r\nNo more characters available\r\n");
+                kprintf("\r\nNo more characters available\r\n");//tells users no more characters are available
             }
             break;
         default:
