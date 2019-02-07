@@ -29,7 +29,7 @@ void testcases(void)
 
     kprintf("===TEST BEGIN===\r\n");
     
-    while(!(isalpha(c)))
+    while(c==0)
     {
         c = kgetc();
     }
@@ -93,6 +93,18 @@ void testcases(void)
             kprintf("Running ungetc method for a single character:\r\n");
             kungetc('H');
             kputc(kgetc());
+            while(kcheckc()==1)
+            {
+                kputc(kgetc());
+            }
+            if(kcheckc()==0)
+            {
+                kprintf("\r\nNo characters left--GOOD");
+            }
+            else
+            {   
+                kprintf("\r\ncharacters available--BAD");
+            }
             kprintf("\r\n");
             break;
         case 'F':
@@ -102,12 +114,30 @@ void testcases(void)
             kungetc('L');
             kungetc('L');
             kungetc('O');
-            kputc(kgetc());
-            kputc(kgetc());
-            kputc(kgetc());
-            kputc(kgetc());
-            kputc(kgetc());
+            while(kcheckc()==1)
+            {
+                kputc(kgetc());
+            }
             kprintf("\r\n");
+            break;
+        case 'G':
+            kungetc('O');
+            kungetc('L');
+            kungetc('L');
+            kungetc('E');
+            kungetc('H');
+            if(kcheckc()==1)
+            {
+                kprintf("characters ready, printing: \n\r");
+            }
+            while(kcheckc()==1)
+            {
+                kputc(kgetc());
+            }
+            if(kcheckc()==0)
+            {
+                kprintf("\r\nNo more characters available\r\n");
+            }
             break;
         default:
             kprintf("Hello Xinu World!\r\n");

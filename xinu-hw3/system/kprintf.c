@@ -31,14 +31,14 @@ syscall kgetc(void)
     //       Otherwise, check UART flags register, and
     //       once the receiver is not empty, get character c.
 
-	// JOSH
-    // on assignment website, kungetc should hold K&R's getch() and ungetch() functions
-	// might have to transfer this
+    int temp =0;
+    
 	if(unbuf > 0) // if no character stored in array
 	{
         unbuf--;
-        return (int) ungetArray[unbuf];
-        
+        temp = (int) ungetArray[unbuf];
+        ungetArray[unbuf] = 0;
+        return temp;
     }
     else
     {
