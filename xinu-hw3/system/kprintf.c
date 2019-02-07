@@ -31,14 +31,14 @@ syscall kgetc(void)
     //       Otherwise, check UART flags register, and
     //       once the receiver is not empty, get character c.
 
-    int temp =0;
+    int temp = 0; // temp variable to save ungetArray character while ungetArray[unbuf] character is being deleted
     
 	if(unbuf > 0) // if no character stored in array
 	{
-        unbuf--;
-        temp = (int) ungetArray[unbuf];
-        ungetArray[unbuf] = 0;
-        return temp;
+        unbuf--; // decrement to latest existing character
+        temp = (int) ungetArray[unbuf]; // save latest character
+        ungetArray[unbuf] = 0; // delete character in array so it's empty
+        return temp; // return latest character
     }
     else
     {
@@ -63,11 +63,11 @@ syscall kcheckc(void)
     // TODO: Check the unget buffer and the UART for characters.
     
     
-    if((!(regptr->fr & PL011_FR_RXFE)) || (unbuf > 0)) //This should check if a character is available in UART//
+    if((!(regptr->fr & PL011_FR_RXFE)) || (unbuf > 0)) // This should check if a character is available in UART or if ungetArray has characters//
     {
         return 1;
     }
-    else
+    else // return empty
     {
         return 0;
     }
@@ -86,8 +86,8 @@ syscall kungetc(unsigned char c)
     // TODO: Check for room in unget buffer, put the character in or discard.
 	if(unbuf < UNGETMAX) // if index is less then array max size
 	{
-		ungetArray[unbuf] = c;// add c to ungetArray and increment unbuf by 1
-		unbuf++;
+		ungetArray[unbuf] = c; // add c to ungetArray and increment unbuf by 1
+		unbuf++; // increment to next empty space to save another character
         return c;
 	}
     return SYSERR;
@@ -116,12 +116,12 @@ syscall kputc(uchar c)
     // TODO: Check UART flags register.
     //       Once the Transmitter FIFO is not full, send character c.
     
-    while(regptr->fr & PL011_FR_TXFF)
+    while(regptr->fr & PL011_FR_TXFF) // wait while flag register reads Transmitter FIFO is Full
     {
         ;
     }
     
-    regptr->dr = c;//register pointer goes to data regiser and sends 'c'//
+    regptr->dr = c;// once FIFO is empty, register pointer goes to data regiser and sends 'c'//
     
     return SYSERR;
 }
