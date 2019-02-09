@@ -26,9 +26,20 @@ _lock_acquire:
 	//	 	If it is, then retry.
 	//	 Second, use strex to try to set the lock to SPINLOCK_LOCKED.
 	//	 	If strex fails, try from the top.
-
+	
+    ldrex r1, [r0] /*optaining the lock value at r0 and storing it to r1*/
+    cmp r1, #SPINLOCK_LOCKED /*check if the lock at r1 is locked*/
+    beq _lock_acquire /*branch if equal try again means if the lock is locked retry _lock_acquire method*/
+     /*if not move on*/
+     
+    strex r2, r1, [r0] /* try and set the lock to SPINLOCK_LOCKED*/
+    cmp r2, #0 /*check to see if the store takes place thus the value returned will be 0*/
+    bne _lock_acquire /*if the status is not equal to 0, strex has failed, restart from the top (_lock_acquire)*/
+    /*otherwise success*/
+	
 	dmb			/* Data Memory Barrier	*/
 	bx	lr
+	
 
 	.endfunc
 
