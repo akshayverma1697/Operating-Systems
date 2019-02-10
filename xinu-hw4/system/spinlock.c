@@ -1,3 +1,4 @@
+//TA-BOT:MAILTO akshay.verma@marquette.edu joshuah.solito@marquette.edu//
 /**
  * @file spinlock.c
  * @provides lock_create, lock_free, lock_acquire, lock_release.
@@ -65,9 +66,16 @@ syscall lock_acquire(spinlock_t lock)
 {
     // TODO: First, check if lock is a valid lock.
     //       Next, call _lock_acquire assembly subroutine
-    //       and properly set "core" field of lockent struct        
-
-    return OK;
+    //       and properly set "core" field of lockent struct  
+    
+    if(!(isbadlock(lock))) //enter if lock is valid
+    {
+        lockent varA = locktab[lock]; //retrive lock entry at index "lock" adn set that object to varA//
+        _lock_acquire(&(varA.lock)); //call lock_acquire assembly subroutine
+        varA.core = getcpuid();//set the core of the lockent struct
+        return OK;// return on succcess
+    }
+    return SYSERR;//return on failure if lock is bad
 }
 
 /**
@@ -80,8 +88,15 @@ syscall lock_release(spinlock_t lock)
     // TODO: Check if lock is a valid lock.
     //       Call _lock_release assembly subroutine and
     //       reset "core" field of lockent struct
-
-    return OK;
+    
+    if(!(isbadlock(lock)))//enter if lock is valid
+    {
+        lockent varA = locktab[lock]; //retrive lock entry at index "lock"
+        _lock_release(&(varA.lock)); // call _lock_release assembly subroutine
+        varA.core = -1; //reset lock by making it equal to -1 (0,1,2,3 are all cores)
+        return OK;//return on succcess
+    }
+    return SYSERR;//return on failure
 }
 
 /**
