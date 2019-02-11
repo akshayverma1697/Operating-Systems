@@ -68,14 +68,17 @@ syscall lock_acquire(spinlock_t lock)
     //       Next, call _lock_acquire assembly subroutine
     //       and properly set "core" field of lockent struct  
     
-    if(!(isbadlock(lock))) //enter if lock is valid
+    if(isbadlock(lock)) //enter if lock is not valid
     {
-        lockent varA = locktab[lock]; //retrive lock entry at index "lock" adn set that object to varA//
-        _lock_acquire(&(varA.lock)); //call lock_acquire assembly subroutine
-        varA.core = getcpuid();//set the core of the lockent struct
-        return OK;// return on succcess
+        return SYSERR;//return on failure if lock is bad
     }
-    return SYSERR;//return on failure if lock is bad
+    else
+    {
+        struct lockent varA = locktab[lock]; //retrive lock entry at index "lock" adn set that object to varA//
+        _lock_acquire(&(varA.lock)); //call lock_acquire assembly subroutine//
+        varA.core = getcpuid();//set the core of the lockent struct
+    }
+    return OK;// return on succcess
 }
 
 /**
@@ -89,14 +92,17 @@ syscall lock_release(spinlock_t lock)
     //       Call _lock_release assembly subroutine and
     //       reset "core" field of lockent struct
     
-    if(!(isbadlock(lock)))//enter if lock is valid
+    if(isbadlock(lock))//enter if lock is not valid
     {
-        lockent varA = locktab[lock]; //retrive lock entry at index "lock"
+        return SYSERR;//return on failure
+    }
+    else
+    {
+        struct lockent varA = locktab[lock]; //retrive lock entry at index "lock"
         _lock_release(&(varA.lock)); // call _lock_release assembly subroutine
         varA.core = -1; //reset lock by making it equal to -1 (0,1,2,3 are all cores)
-        return OK;//return on succcess
     }
-    return SYSERR;//return on failure
+    return OK;//return on succcess
 }
 
 /**

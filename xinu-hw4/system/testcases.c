@@ -37,7 +37,10 @@ void testcases(void)
     spinlock_t testlock;
 
     kprintf("===TEST BEGIN===\r\n");
-
+    kprintf("0 for 1 spinlock create and aquire, expected output is lock field is set to SPINLOCK_LOCKED\r\n");
+    kprintf("1 for 1 spinlock create and aquire, expected output is lock field is set to SPINLOCK_UNLOCKED\r\n");
+    kprintf("2 for 1 invalid spinlock, expected output is SYSERR\r\n");
+    kprintf("3 for 1 invalid spinlock, expected output is SYSERR\r\n");
     c = kgetc();
     switch (c)
     {
