@@ -74,9 +74,9 @@ syscall lock_acquire(spinlock_t lock)
     }
     else
     {
-        struct lockent varA = locktab[lock]; //retrive lock entry at index "lock" adn set that object to varA//
-        _lock_acquire(&(varA.lock)); //call lock_acquire assembly subroutine//
-        varA.core = getcpuid();//set the core of the lockent struct
+        //struct lockent varA = locktab[lock]; //retrive lock entry at index "lock" adn set that object to varA//
+        _lock_acquire(&(locktab[lock].lock)); //call lock_acquire assembly subroutine//
+        locktab[lock].core = getcpuid();//set the core of the lockent struct
     }
     return OK;// return on succcess
 }
@@ -98,9 +98,9 @@ syscall lock_release(spinlock_t lock)
     }
     else
     {
-        struct lockent varA = locktab[lock]; //retrive lock entry at index "lock"
-        _lock_release(&(varA.lock)); // call _lock_release assembly subroutine
-        varA.core = -1; //reset lock by making it equal to -1 (0,1,2,3 are all cores)
+        //struct lockent varA = locktab[lock]; //retrive lock entry at index "lock"
+        _lock_release(&(locktab[lock].lock)); // call _lock_release assembly subroutine
+        locktab[lock].core = -1; //reset lock by making it equal to -1 (0,1,2,3 are all cores)
     }
     return OK;//return on succcess
 }
