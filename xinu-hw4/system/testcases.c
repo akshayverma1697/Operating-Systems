@@ -41,6 +41,8 @@ void testcases(void)
     kprintf("1 for 1 spinlock create and aquire, expected output is lock field is set to SPINLOCK_UNLOCKED\r\n");
     kprintf("2 for 1 invalid spinlock, expected output is SYSERR\r\n");
     kprintf("3 for 1 invalid spinlock, expected output is SYSERR\r\n");
+    kprintf("4 for Core 1 acquiring lock and COre 2 trying to acquire\r\n");
+    kprintf("5 for Competition test\r\n");
     c = kgetc();
     switch (c)
     {
@@ -92,6 +94,13 @@ void testcases(void)
         // Expected output is that lock field is locked and core field is 1.
         
         // TODO: Write this testcase.
+		testlock = lock_create();
+		kprintf("Core 1 acquiring lock...\r\n");
+		unparkcore(1, (void *)core_acquire, testlock);
+		kprintf("Core 2 attempting to acquire lock...\r\n");
+		unparkcore(2, (void *)core_acquire, testlock);
+		print_lockent(testlock);
+		lock_free(testlock);
         break;
 
     case '5':
@@ -105,7 +114,17 @@ void testcases(void)
         // Expected output is that the core field should be 0.
 
         // TODO: Write this testcase.
-        lock_free(testlock);
+		testlock = lock_create();
+		kprintf("Core 0 acquiring lock...\r\n");
+		lock_acquire(testlock);
+		kprintf("Core 1 attempting to acquire lock...\r\n");
+		unparkcore(1, (void *)core_acquire, testlock);
+		kprintf("Core 2 attempting to acquire lock...\r\n");
+		unparkcore(2, (void *)core_acquire, testlock);
+		kprintf("Core 3 attempting to acquire lock...\r\n");
+		unparkcore(3, (void *)core_acquire, testlock);
+		print_lockent(testlock);
+		lock_free(testlock);
         break;
 
     default:

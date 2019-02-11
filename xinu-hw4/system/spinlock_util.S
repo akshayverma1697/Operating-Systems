@@ -19,6 +19,7 @@
 _lock_acquire:
 	.func	_lock_acquire
 
+try: 
 	pldw	[r0]		/* Preload Data with intention to write		*/
 
 	// TODO: Implement a spinlock acquire method by:
@@ -28,15 +29,15 @@ _lock_acquire:
 	//	 Second, use strex to try to set the lock to SPINLOCK_LOCKED.
 	//	 	If strex fails, try from the top.
 	
-try:    
+   
     ldrex r1, [r0] /*optaining the lock value at r0 and storing it to r1*/
     cmp r1, #SPINLOCK_LOCKED /*check if the lock at r1 is locked*/
     beq try /*branch if equal try again means if the lock is locked retry _lock_acquire method*/
      /*if not move on*/
     mov r1, #SPINLOCK_LOCKED /* store SPINLOCK_LOCKED into r3*/
     strex r2, r1, [r0] /* try and set the lock to SPINLOCK_LOCKED*/
-    cmp r2, #1 /*check to see if the store takes place thus the value returned will be 0*/
-    beq try /*if the status is not equal to 0, strex has failed, restart from the top (_lock_acquire)*/
+    cmp r2, #0 /*check to see if the store takes place thus the value returned will be 0*/
+    bne try /*if the status is not equal to 0, strex has failed, restart from the top (_lock_acquire)*/
     /*otherwise success*/
 	
 	dmb			/* Data Memory Barrier	*/
