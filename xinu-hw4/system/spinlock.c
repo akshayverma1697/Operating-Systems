@@ -75,7 +75,7 @@ syscall lock_acquire(spinlock_t lock)
     else
     {
         _lock_acquire(&(locktab[lock].lock)); //call lock_acquire assembly subroutine//
-        locktab[lock].core = getcpuid();//set the core of the lockent struct
+        locktab[lock].core = getcpuid();//retrieve the core of the lockent struct
     }
     return OK;// return on succcess
 }
@@ -98,7 +98,7 @@ syscall lock_release(spinlock_t lock)
     else
     {
         _lock_release(&(locktab[lock].lock)); // call _lock_release assembly subroutine
-        locktab[lock].core = -1; //reset lock by making it equal to -1 (0,1,2,3 are all cores)
+        locktab[lock].core = -1; //reset lock by making it equal to -1 (0,1,2,3,4 are all cores)
     }
     return OK;//return on succcess
 }
