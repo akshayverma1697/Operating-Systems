@@ -41,12 +41,12 @@ ctxsw:
 	str r10, [r0, #PREG_R10*4]
 	str r11, [r0, #PREG_R11*4]
 	
-	str lr, [r0, #PREG_LR*4]
+	str lr, [r0, #PREG_PC*4]
 	str sp, [r0, #PREG_SP*4]
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
-	mov ip, r1
+	mov r1, ip
 	ldr r0, [ip, #PREG_R0*4]
 	ldr r1, [ip, #PREG_R1*4]
 	ldr r2, [ip, #PREG_R2*4]
