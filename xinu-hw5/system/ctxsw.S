@@ -31,11 +31,27 @@ ctxsw:
 	.func ctxsw
 
 	// TODO: Save callee-save ("non-volatile") registers.
-	str sp, [r0, #PREG_SP*4]
+	str r4, [r0, #PREG_R4*4]
+	str r5, [r0, #PREG_R5*4]
+	str r6, [r0, #PREG_R6*4]
+	str r7, [r0, #PREG_R7*4]
+	str r8, [r0, #PREG_R8*4]
+	str r9, [r0, #PREG_R9*4]
+	str r10, [r0, #PREG_R10*4]
+	str r11, [r0, #PREG_R11*4]
+	
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
-	ldr sp, [r0, #PREG_R4*4]
+	ldr r4, [r1, #PREG_R4*4]
+	ldr r5, [r1, #PREG_R5*4]
+	ldr r6, [r1, #PREG_R6*4]
+	ldr r7, [r1, #PREG_R7*4]
+	ldr r8, [r1, #PREG_R8*4]
+	ldr r9, [r1, #PREG_R9*4]
+	ldr r10, [r1, #PREG_R10*4]
+	ldr r11, [r1, #PREG_R11*4]
+	
 	
 	// TODO: Jump to next function.
    
