@@ -112,7 +112,6 @@ void testcases(void)
                      0x55555555, 0x66666666, 0x77777777, 0x88888888);
         printpcb(pid);
         // TODO: print out stack with extra args
-		
         // TODO: ready(pid, RESCHED_YES, 0);
 		ready(pid, RESCHED_YES, 0);
         break;
