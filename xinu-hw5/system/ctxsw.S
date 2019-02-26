@@ -1,3 +1,5 @@
+//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
+
 /**
  * @file     ctxsw.s
  * @provides ctxsw
@@ -29,7 +31,7 @@ ctxsw:
 	.func ctxsw
 
 	// TODO: Save callee-save ("non-volatile") registers.
-	str sp, [r0, #PREG_R4*4]
+	str sp, [r0, #PREG_SP*4]
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
