@@ -31,7 +31,10 @@ ctxsw:
 	.func ctxsw
 
 	// TODO: Save callee-save ("non-volatile") registers.
-	
+	str r0, [r0, #PREG_R0*4]
+	str r1, [r0, #PREG_R1*4]
+	str r2, [r0, #PREG_R2*4]
+	str r3, [r0, #PREG_R3*4]
 	str r4, [r0, #PREG_R4*4]
 	str r5, [r0, #PREG_R5*4]
 	str r6, [r0, #PREG_R6*4]
