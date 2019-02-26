@@ -49,7 +49,7 @@ ctxsw:
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
-	mov r1, ip
+	mov ip, r1
 	ldr r0, [ip, #PREG_R0*4]
 	ldr r1, [ip, #PREG_R1*4]
 	ldr r2, [ip, #PREG_R2*4]
@@ -63,11 +63,12 @@ ctxsw:
 	ldr r10, [ip, #PREG_R10*4]
 	ldr r11, [ip, #PREG_R11*4]
 	
-	ldr lr, [ip, #PREG_LR*4]
-	ldr sp, [ip, #PREG_SP*4]
+
 	
 	
 	// TODO: Jump to next function.
+    ldr lr, [ip, #PREG_LR*4]
+	ldr sp, [ip, #PREG_SP*4]
     ldr pc, [ip, #PREG_PC*4]
   
     

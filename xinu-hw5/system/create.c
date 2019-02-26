@@ -58,7 +58,7 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 	// TODO: Setup PCB entry for new process.
     ppcb->core_affinity = -1;// from notes, set to -1 bcuz we don't know the core yet
     ppcb->stkbase = saddr; // setting stack address to stack base
-    ppcb->stklen = ((ulong)(saddr) - (ulong)ppcb->stkbase); // setting stack length
+    ppcb->stklen = ssize; // setting stack length
     
     strncpy(ppcb->name, name, PNMLEN); // (dest, src, size) copying parameter *name into struct name
  
@@ -88,15 +88,27 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 	//        See K&R 7.3 for example using va_start, va_arg and
 	//        va_end macros for variable argument functions.
     va_start(ap, nargs);
+    
+    
+    
 	for(i = 0; i < nargs; i++) // saves registers 4-11 into pcb
     {
-        if(i < 4) ppcb->regs[i] = va_arg(ap, int); // saves variable argument into registers
+        if(i <= 4) 
+        {
+            ppcb->regs[i] = va_arg(ap, int);// saves variable argument into registers
+        }
 		else
 		{
 			*saddr = va_arg(ap, int); // if there are more arguments than registers, store on the stack
 			++saddr;
 		}
     }
+    
+    ppcb->regs[PREG_SP] = (int) saddr;
+    ppcb->regs[PREG_LR] = (int) userret;
+    ppcb->regs[PREG_PC] = (int) funcaddr;
+    
+    
     va_end(ap);
 	// set up lr and pc
 	return pid;
