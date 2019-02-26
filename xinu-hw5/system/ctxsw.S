@@ -40,6 +40,8 @@ ctxsw:
 	str r10, [r0, #PREG_R10*4]
 	str r11, [r0, #PREG_R11*4]
 	
+	str lr, [r0, #PREG_LR*4]
+	str sp, [r0, #PREG_SP*4]
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
@@ -52,9 +54,12 @@ ctxsw:
 	ldr r10, [r1, #PREG_R10*4]
 	ldr r11, [r1, #PREG_R11*4]
 	
+	ldr lr, [r1, #PREG_LR*4]
+	ldr sp, [r1, #PREG_SP*4]
+	
 	
 	// TODO: Jump to next function.
-   
+    ldr pc, [r1, #PREG_PC*4]
   
     
 	.end ctxsw

@@ -90,7 +90,7 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
     va_start(ap, nargs);
 	for(i = 0; i < nargs; i++) // saves registers 4-11 into pcb
     {
-            ppcb->regs[i] = va_arg(ap, PREG_SP); // saves variable argument into registers
+            ppcb->regs[i] = va_arg(ap, int); // saves variable argument into registers
             // call ctxsw?
             // if there are more arguments than registers, store on the stack
     }
