@@ -78,6 +78,7 @@ void printpcb(int pid)
     /* Print PCB contents and registers */
     kprintf("Base of run time stack    : 0x%08X \r\n", ppcb->stkbase);
     kprintf("Stack length of process   : %8u \r\n", ppcb->stklen);
+    kprintf("Stack pointer: 0x%08X \r\n", ppcb->regs[PREG_SP]);
 }
 
 /**
