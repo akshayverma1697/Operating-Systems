@@ -15,7 +15,10 @@
 
 #include <xinu.h>
 
+#define total_bytes 16 //4 slots with 4 bytes (4*4=16)//
+
 extern void main(int, char *);
+
 
 /* student created function to create process recursively */
 void akshaySpecial(int n)
@@ -98,7 +101,8 @@ void printpcb(int pid)
 void testcases(void)
 {
     int c, pid;
-
+    int *stpr; //create stack pointer
+    pcb *ppcb; // initializes pointer
     kprintf("0) Test creation of one process\r\n");
     kprintf("1) Test passing of many args\r\n");
     kprintf("2) Create three processes and run them\r\n");
@@ -125,6 +129,18 @@ void testcases(void)
                      0x55555555, 0x66666666, 0x77777777, 0x88888888);
         printpcb(pid);
         // TODO: print out stack with extra args
+        
+        
+        ppcb = &proctab[pid]; // accesses current process
+        stpr = ppcb->regs[PREG_SP]; // get the stack pointer
+        
+        for(; stpr < *stpr + total_bytes; stpr++ )
+        {
+            kprintf("%X \r\n", *stpr);
+        }
+        
+        
+        
         // TODO: ready(pid, RESCHED_YES, 0);
 		ready(pid, RESCHED_YES, 0);
         break;
