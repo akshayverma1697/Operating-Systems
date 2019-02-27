@@ -31,6 +31,7 @@ ctxsw:
 	.func ctxsw
 
 	// TODO: Save callee-save ("non-volatile") registers.
+	/* Storing registers*/
 	str r0, [r0, #PREG_R0*4]
 	str r1, [r0, #PREG_R1*4]
 	str r2, [r0, #PREG_R2*4]
@@ -44,12 +45,12 @@ ctxsw:
 	str r10, [r0, #PREG_R10*4]
 	str r11, [r0, #PREG_R11*4]
 	
-	str lr, [r0, #PREG_PC*4]
+	str lr, [r0, #PREG_PC*4] /* store link register into program counter to save starting point */
 	str sp, [r0, #PREG_SP*4]
  	
 
 	// TODO: Restore callee-save ("non-volatile") registers.
-	mov ip, r1
+	mov ip, r1 /* prevents overwriting data */
 
 	ldr r0, [ip, #PREG_R0*4]
 	ldr r1, [ip, #PREG_R1*4]
@@ -68,9 +69,9 @@ ctxsw:
 	
 	
 	// TODO: Jump to next function.
-    ldr lr, [ip, #PREG_LR*4]
-	ldr sp, [ip, #PREG_SP*4]
-    ldr pc, [ip, #PREG_PC*4]
+    ldr lr, [ip, #PREG_LR*4] 
+	ldr sp, [ip, #PREG_SP*4] /*Stack pointer is initialized after 1st process*/
+    ldr pc, [ip, #PREG_PC*4] /*Goes to next function*/
   
     
 	.end ctxsw
