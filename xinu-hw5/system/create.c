@@ -87,28 +87,25 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 	//        See K&R 7.3 for example using va_start, va_arg and
 	//        va_end macros for variable argument functions.    
     
-    // set up lr and pc and 
+    // set up link register and program counter and stack pointer
 	ppcb->regs[PREG_SP] = (int) saddr;
     ppcb->regs[PREG_LR] = (int) userret;
     ppcb->regs[PREG_PC] = (int) funcaddr;
     
     va_start(ap, nargs);
-    
-    
-    
 	for(i = 0; i < nargs; i++) // saves registers 4-11 into pcb
     {
-        if(i < 4) 
+        if(i < 4) //first four registers (0,1,2,3)
         {
             ppcb->regs[i] = va_arg(ap, int);// saves variable argument into registers
         }
-		else
+		else // callee save registers (4-11)
 		{
-			*saddr = va_arg(ap, int); // if there are more arguments than registers, store on the stack
-			saddr++;
+            *(saddr + i - 4) = va_arg(ap, int);
+            // if there are more arguments than registers, store on the stack
+			//increment stack address by 1 (equal to 4 bytes)
 		}
     }
-    
     va_end(ap);
 
 

@@ -17,6 +17,17 @@
 
 extern void main(int, char *);
 
+/* student created function to create process recursively */
+void akshaySpecial(int n)
+{
+    if(n < 15) // number to limit recursion - limited to 11 calls
+    {
+        n = 1 + create((void *)akshaySpecial, INITSTK, "AKSHAY&JOSH", 2,0,NULL); // create process
+        kprintf("This is our added test case boi\n\r"); // print proof process is called again
+        akshaySpecial(n); // recursive call with new n
+    }
+}
+
 int testmain(int argc, char **argv)
 {
 	uint cpuid = getcpuid();
@@ -28,7 +39,7 @@ int testmain(int argc, char **argv)
         kprintf("This is process %d\r\n", currpid[cpuid]);
 
         /* Uncomment the resched() line for cooperative scheduling. */
-       	// resched();
+       	resched();
     }
     return 0;
 }
@@ -78,7 +89,7 @@ void printpcb(int pid)
     /* Print PCB contents and registers */
     kprintf("Base of run time stack    : 0x%08X \r\n", ppcb->stkbase);
     kprintf("Stack length of process   : %8u \r\n", ppcb->stklen);
-    kprintf("Stack pointer: 0x%08X \r\n", ppcb->regs[PREG_SP]);
+    kprintf("Stack pointer: 0x%08X \r\n", ppcb->regs[PREG_SP]); // print Stack pointer
 }
 
 /**
@@ -92,6 +103,7 @@ void testcases(void)
     kprintf("1) Test passing of many args\r\n");
     kprintf("2) Create three processes and run them\r\n");
 	kprintf("3) Create three processes and run them on other cores\r\n");
+    kprintf("4) Create a process that will create more of itself\r\n");
 
     kprintf("===TEST BEGIN===\r\n");
 
@@ -130,6 +142,12 @@ void testcases(void)
 		ready(create((void *)testmain, INITSTK, "MAIN2", 2, 0, NULL), RESCHED_NO, 2);
 		ready(create((void *)testmain, INITSTK, "MAIN3", 2, 0, NULL), RESCHED_NO, 3);
 		break;
+        
+    case '4':
+        // Create a process that creates itself 
+        akshaySpecial(0);
+        //pid = create((void *)akshaySpecial, INITSTK, "MAIN1", 2, 0, NULL);
+        //printpcb(pid);
 	default:
 		break;
     }
