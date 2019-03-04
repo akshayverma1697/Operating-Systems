@@ -27,7 +27,7 @@ void *getstk(ulong);
  * @param nargs    number of arguments that follow
  * @return the new process id
  */
-syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
+syscall create(void *funcaddr, ulong ssize, char *name, int priority, ulong nargs, ...) // added priority field to be after name
 {
 	ulong *saddr;               /* stack address                */
 	ulong pid;                  /* stores new process id        */
