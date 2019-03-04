@@ -18,6 +18,7 @@ extern void ctxsw(void *, void *);
 syscall resched(void)
 {
 	int highest_prio;
+    pid_typ pid;
 	irqmask im;
 	pcb *oldproc;               /* pointer to old process entry */
 	pcb *newproc;               /* pointer to new process entry */
@@ -34,7 +35,24 @@ syscall resched(void)
 	//
 	//       Reference include/clock.h to find more information
 	//       about the quantums and how aging should behave.
-
+    
+    promote_medium[cpuid]--; //decrement promote_medium cpuid. PUT ABOVE IF because you must first decrement and then check
+    
+    if(promote_medium[cpuid] == 0 && nonempty(readylist[cpuid][PRIORITY_MED])) // if promote_medium reaches 0 and a process is available, move to high priority
+    {
+        pid = dequeue(readylist[ppcb->core_affinity][PRIORITY_MED]); // remove from medium queue
+        enqueue(pid, readylist[oldproc->core_affinity][PRIORITY_HIGH]);// move process to high priority
+        promote_medium[cpuid] = QUANTUM;// reset medium quantum
+        promote_low[cpuid]--;//decrement promote_low cpuid
+        
+        if(promote_low[cpuid] == 0 && nonempty(readlist[cpuid][PRIORITY_LOW]))
+        {
+            pid = dequeue(readylist[ppcb->core_affinity][PRIORITY_LOW]);// remove from low queue 
+            enqueue(pid, readylist[oldproc->core_affinity][PRIORITY_MED]);// move to medium queue
+            promote_low[cpuid] = QUANTUM;// reset low quantum
+        }
+    }
+    
 
 #endif
 

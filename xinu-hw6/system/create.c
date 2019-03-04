@@ -27,7 +27,7 @@ void *getstk(ulong);
  * @param nargs    number of arguments that follow
  * @return the new process id
  */
-syscall create(void *funcaddr, ulong ssize, char *name, int priority, ulong nargs, ...) // added priority field to be after name
+syscall create(void *funcaddr, ulong ssize, ulong priority, char *name, ulong nargs, ...) // added priority field to be after name
 {
 	ulong *saddr;               /* stack address                */
 	ulong pid;                  /* stores new process id        */
@@ -57,6 +57,7 @@ syscall create(void *funcaddr, ulong ssize, char *name, int priority, ulong narg
     
 	// TODO: Setup PCB entry for new process.
     ppcb->stklen = ssize; // setting stack length
+    ppcb->priority = priority; //setting priority
     ppcb->stkbase = saddr; // setting stack address to stack base
     ppcb->core_affinity = -1;// from notes, set to -1 bcuz we don't know the core yet
     strncpy(ppcb->name, name, PNMLEN); // (dest, src, size) copying parameter *name into struct name
