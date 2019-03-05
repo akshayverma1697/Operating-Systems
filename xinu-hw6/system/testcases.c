@@ -1,3 +1,4 @@
+//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file testcases.c
  * @provides testcases
@@ -21,7 +22,9 @@ void printpid(int times)
 	for (i = 0; i < times; i++)
 	{
 		kprintf("This is process %d\r\n", currpid[cpuid]);
-		udelay(1);
+        //kprintf("Print promote_medium %d\r\n", promote_medium[cpuid]);
+        resched();
+		//udelay(1);
 	}
 }
 
@@ -57,15 +60,22 @@ void testcases(void)
 			kprintf("AGING is enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates aging 
-
+            
+            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 15), RESCHED_NO, 0);
+            //ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH2", 1,15), RESCHED_NO, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 15), RESCHED_YES, 0);            
+            ready(create((void *)printpid, INITSTK, PRIORITY_LOW, "PRINTER-LOW", 1, 15), RESCHED_YES, 0);
 
 #else
 			// STARVING TESTCASE
 			kprintf("\r\nAGING is not currently enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates starvation
+            
 
-
+            
+            
+            
 #endif
 			break;
 
@@ -76,10 +86,12 @@ void testcases(void)
 			kprintf("\r\nPreemption is enabled.\r\n");
 
 			// TODO: Create a testcase that demonstrates preemption
-
+            
 
 #else
 			kprintf("\r\nPreemption is not currently enabled...\r\n");
+            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 10), RESCHED_NO, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 10), RESCHED_YES, 0);
 #endif
 			break;
 		

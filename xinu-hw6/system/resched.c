@@ -1,3 +1,4 @@
+//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file resched.c
  * @provides resched
@@ -18,7 +19,7 @@ extern void ctxsw(void *, void *);
 syscall resched(void)
 {
 	int highest_prio;
-    pid_typ pid;
+    //pid_typ pid;
 	irqmask im;
 	pcb *oldproc;               /* pointer to old process entry */
 	pcb *newproc;               /* pointer to new process entry */
@@ -38,22 +39,27 @@ syscall resched(void)
     
     promote_medium[cpuid]--; //decrement promote_medium cpuid. PUT ABOVE IF because you must first decrement and then check
     
-    if(promote_medium[cpuid] == 0 && nonempty(readylist[cpuid][PRIORITY_MED])) // if promote_medium reaches 0 and a process is available, move to high priority
+    if(promote_medium[cpuid] <= 0)
     {
-       // pid = dequeue(readylist[ppcb->core_affinity][PRIORITY_MED]); // remove from medium queue
-        pid  = dequeue(readylist[cpuid][PRIORITY_MED]);
-        enqueue(pid, readylist[oldproc->core_affinity][PRIORITY_HIGH]);// move process to high priority
-        promote_medium[cpuid] = QUANTUM;// reset medium quantum
-        promote_low[cpuid]--;//decrement promote_low cpuid
-        
-        if(promote_low[cpuid] == 0 && nonempty(readylist[cpuid][PRIORITY_LOW]))
+        if(nonempty(readylist[cpuid][PRIORITY_MED])) // if promote_medium reaches 0 and a process is available, move to high priority
         {
-            //pid = dequeue(readylist[ppcb->core_affinity][PRIORITY_LOW]);// remove from low queue 
-            pid = dequeue(readylist[cpuid][PRIORITY_LOW]);
-            enqueue(pid, readylist[oldproc->core_affinity][PRIORITY_MED]);// move to medium queue
-            promote_low[cpuid] = QUANTUM;// reset low quantum
+            enqueue((dequeue(readylist[cpuid][PRIORITY_MED])),(readylist[cpuid][PRIORITY_HIGH]));// move process to high priority, 
+            //dequeue returns a PID which is why it is used as the first argument in enqueue for both priorities
         }
+        promote_medium[cpuid] = QUANTUM;// reset medium quantum
     }
+    
+    promote_low[cpuid]--;//decrement promote_low cpuid  
+            
+    if(promote_low[cpuid] <= 0)
+    {
+        if(nonempty(readylist[cpuid][PRIORITY_LOW]))
+        {
+        enqueue((dequeue(readylist[cpuid][PRIORITY_LOW])) , (readylist[cpuid][PRIORITY_MED]));// move to medium queue  
+        }
+        promote_low[cpuid] = QUANTUM;// reset low quantum        
+    }
+    
     
 
 #endif
