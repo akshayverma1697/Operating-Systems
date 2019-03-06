@@ -20,6 +20,9 @@ volatile ulong clktime[NCORES];
 
 #if PREEMPT
 volatile ulong preempt[NCORES];
+#endif
+
+#if AGING
 volatile ulong promote_medium[NCORES];
 volatile ulong promote_low[NCORES];
 #endif
@@ -36,6 +39,12 @@ void clkinit(void)
 	for (i = 0; i < NCORES; i++)
 	{
 		preempt[i]        = QUANTUM;
+	}
+#endif
+
+#if AGING
+	for (i = 0; i < NCORES; i++)
+	{
 		promote_medium[i] = QUANTUM;
 		promote_low[i]    = QUANTUM;
 	}
