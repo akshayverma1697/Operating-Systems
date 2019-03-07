@@ -58,27 +58,24 @@ void testcases(void)
 		case 'A':
 #if AGING
 			// AGING TESTCASE medium will be promoted to high and low to medium so they have a chance to run before high priority finishes -- prevents starvation
-            //process with lower number runs first but higher number processes will begin printing before lower number finishes
+            // process with lower number runs first but higher number processes will begin printing before lower number finishes
 			kprintf("AGING is enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates aging 
             
             ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 5), RESCHED_NO, 0);
-            //ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH2", 1,15), RESCHED_NO, 0);
             ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 5), RESCHED_NO, 0);            
             ready(create((void *)printpid, INITSTK, PRIORITY_LOW, "PRINTER-LOW", 1, 5), RESCHED_YES, 0);
 
 #else
 			// STARVING TESTCASE processes will run in order according to priority
-            //process numbers run in incrementing order with no interrupts
+            // process numbers run in incrementing order with no interrupts from latter processes
 			kprintf("\r\nAGING is not currently enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates starvation
-            
-
-            
-            
-            
+            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 5), RESCHED_NO, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 5), RESCHED_NO, 0);            
+            ready(create((void *)printpid, INITSTK, PRIORITY_LOW, "PRINTER-LOW", 1, 5), RESCHED_YES, 0
 #endif
 			break;
 
@@ -90,9 +87,11 @@ void testcases(void)
 			kprintf("\r\nPreemption is enabled.\r\n");
 
 			// TODO: Create a testcase that demonstrates preemption
-            
+            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 10), RESCHED_NO, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 10), RESCHED_YES, 0);
 
 #else
+			// process will not be preempted, and the lower priority process will run fully before the higher priority process
 			kprintf("\r\nPreemption is not currently enabled...\r\n");
             ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 10), RESCHED_NO, 0);
             ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 10), RESCHED_YES, 0);
@@ -100,6 +99,7 @@ void testcases(void)
 			break;
 		
 		default:
+			kprintf("No aging or preemption chosen.\r\n");
 			break;
 	}
 
