@@ -37,28 +37,31 @@ syscall resched(void)
 	//       Reference include/clock.h to find more information
 	//       about the quantums and how aging should behave.
     
-    promote_medium[cpuid]--; //decrement promote_medium cpuid. PUT ABOVE IF because you must first decrement and then check
+    promote_medium[cpuid]--; //decrement promote_medium cpuid. PUT ABOVE "IF" because you must first decrement the timer before you are able to enter the first if statement
     
-    if(promote_medium[cpuid] <= 0)
+    if(promote_medium[cpuid] <= 0)//enter if statement once the medium timer reaches 0, 
+        //READ: the "<" sign is a saftey net in case the timer ever goes under 0, and the computer never saw the timer hit 0//
     {
-        if(nonempty(readylist[cpuid][PRIORITY_MED])) // if promote_medium reaches 0 and a process is available, move to high priority
+        if(nonempty(readylist[cpuid][PRIORITY_MED]))// if a process is available, enter if statement in order to move the process to high priority
         {
             enqueue((dequeue(readylist[cpuid][PRIORITY_MED])),(readylist[cpuid][PRIORITY_HIGH]));// move process to high priority, 
-            //dequeue returns a PID which is why it is used as the first argument in enqueue for both priorities
+            //READ: dequeue returns a PID which is why it is used as the first argument in enqueue for both priorities (medium and low)//
         }
         promote_medium[cpuid] = QUANTUM;// reset medium quantum
+        
+        promote_low[cpuid]--;//decrement promote_low cpuid  
+            
+        if(promote_low[cpuid] <= 0)//enter if statement when timer reaches 0
+        {
+            if(nonempty(readylist[cpuid][PRIORITY_LOW])) //enter if there is a process in the low queue
+            {
+            enqueue((dequeue(readylist[cpuid][PRIORITY_LOW])) , (readylist[cpuid][PRIORITY_MED]));// promote to medium queue  
+            }
+        promote_low[cpuid] = QUANTUM;// reset low quantum timer        
+        }        
+        
     }
     
-    promote_low[cpuid]--;//decrement promote_low cpuid  
-            
-    if(promote_low[cpuid] <= 0)
-    {
-        if(nonempty(readylist[cpuid][PRIORITY_LOW]))
-        {
-        enqueue((dequeue(readylist[cpuid][PRIORITY_LOW])) , (readylist[cpuid][PRIORITY_MED]));// move to medium queue  
-        }
-        promote_low[cpuid] = QUANTUM;// reset low quantum        
-    }
     
     
 

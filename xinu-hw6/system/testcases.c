@@ -22,7 +22,8 @@ void printpid(int times)
 	for (i = 0; i < times; i++)
 	{
 		kprintf("This is process %d\r\n", currpid[cpuid]);
-        //kprintf("Print promote_medium %d\r\n", promote_medium[cpuid]);
+        //kprintf("promote_medium timer: %d\r\n", promote_medium[cpuid]);//prints medium timer
+        //kprintf("promote_low timer: %d\r\n", promote_low[cpuid]);//prints low timer
         resched();
 		//udelay(1);
 	}
@@ -56,18 +57,20 @@ void testcases(void)
 		case 'a':
 		case 'A':
 #if AGING
-			// AGING TESTCASE
+			// AGING TESTCASE medium will be promoted to high and low to medium so they have a chance to run before high priority finishes -- prevents starvation
+            //process with lower number runs first but higher number processes will begin printing before lower number finishes
 			kprintf("AGING is enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates aging 
             
-            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 15), RESCHED_NO, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH", 1, 5), RESCHED_NO, 0);
             //ready(create((void *)printpid, INITSTK, PRIORITY_HIGH, "PRINTER-HIGH2", 1,15), RESCHED_NO, 0);
-            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 15), RESCHED_YES, 0);            
-            ready(create((void *)printpid, INITSTK, PRIORITY_LOW, "PRINTER-LOW", 1, 15), RESCHED_YES, 0);
+            ready(create((void *)printpid, INITSTK, PRIORITY_MED, "PRINTER-MED", 1, 5), RESCHED_NO, 0);            
+            ready(create((void *)printpid, INITSTK, PRIORITY_LOW, "PRINTER-LOW", 1, 5), RESCHED_YES, 0);
 
 #else
-			// STARVING TESTCASE
+			// STARVING TESTCASE processes will run in order according to priority
+            //process numbers run in incrementing order with no interrupts
 			kprintf("\r\nAGING is not currently enabled.\r\n");
 			
 			// TODO: Create a testcase that demonstrates starvation
@@ -82,7 +85,8 @@ void testcases(void)
 		case 'p':
 		case 'P':
 #if PREEMPT
-			// PREEMPTION TESTCASE
+			// PREEMPTION TESTCASE low priority executed first, but is then preempted by high priority
+            // process with higher number will run before process with lower number
 			kprintf("\r\nPreemption is enabled.\r\n");
 
 			// TODO: Create a testcase that demonstrates preemption
