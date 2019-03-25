@@ -30,7 +30,7 @@ syscall ready(pid_typ pid, bool resched, uint core);
 syscall resched(void);
 
 /* Kernel constants */
-#define PREEMPT		TRUE 		/* preemptive rescheduling			*/
+#define PREEMPT		FALSE		/* preemptive rescheduling			*/
 #define AGING		TRUE 	/* queue aging prevents starvation	*/
 
 /* Assertions */
