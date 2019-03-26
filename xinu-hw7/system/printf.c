@@ -27,7 +27,9 @@ uchar getc(void)
 	 * Increment the index of the input buffer's first byte
 	 * with respect to the total length of the UART input buffer.
 	 */
-
+    uarthandler();
+    wait(serial_port.isema);
+    
 
 	restore(im);
 	return c;
@@ -56,12 +58,22 @@ syscall putc(char c)
 	 * amount of bytes in buffer, and total length of the UART output buffer.
 	 * Then, increment the counter of bytes in the output buffer. Release the spinlock.
 	 */
-    //struct pl011_uart_csreg.dr  pl011_uart_csreg;//make symbollic name for struct so it can be used
     
     if(serial_port.oidle)//checking to see if serial port is idle
-    {//enter if statement and set serial port to not idle
-        serial_port.oidle = FALSE;
-        ((struct pl011_uart_csreg *) serial_port.csr)->dr = c;
+    {//enter if statement 
+        serial_port.oidle = FALSE;// set serial port to not idle
+        ((struct pl011_uart_csreg *) serial_port.csr)->dr = c;//write character to the data register
+    }
+    else//if not idle
+    {
+        wait(serial_port.osema);//wait on count, for input bytes to be ready
+        serial_port.olock = lock_create();//create lock and return id to olock
+        lock_acquire(serial_port.olock);
+        serial_port.out[serial_port.ostart%UART_OBLEN] = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
+        serial_port.ostart++;//increment ostart
+        lock_release(serial_port.olock);
+        //lock_free(serial_port.olock);
+        //reset olock to 0?
     }
 
 	restore(im);
