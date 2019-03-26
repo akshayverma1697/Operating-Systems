@@ -56,12 +56,12 @@ syscall putc(char c)
 	 * amount of bytes in buffer, and total length of the UART output buffer.
 	 * Then, increment the counter of bytes in the output buffer. Release the spinlock.
 	 */
-    typedef struct pl011_uart_csreg pl011_uart_csreg;//make symbollic name for struct so it can be used
+    //struct pl011_uart_csreg.dr  pl011_uart_csreg;//make symbollic name for struct so it can be used
     
-    if(serial_port.oidle == TRUE)//checking to see if serial port is idle
-    {
-        serial_port.oidle = FALSE;//enter if and set serial port to not idle
-        ((pl011_uart_csreg *) serial_port.csr)->dr = c;
+    if(serial_port.oidle)//checking to see if serial port is idle
+    {//enter if statement and set serial port to not idle
+        serial_port.oidle = FALSE;
+        ((struct pl011_uart_csreg *) serial_port.csr)->dr = c;
     }
 
 	restore(im);
