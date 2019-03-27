@@ -1,6 +1,7 @@
 /**
  * @file printf.c
  */
+//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu//
 /* Embedded Xinu, Copyright (C) 2018. All rights reserved. */
 
 #include <xinu.h>
@@ -27,10 +28,14 @@ uchar getc(void)
 	 * Increment the index of the input buffer's first byte
 	 * with respect to the total length of the UART input buffer.
 	 */
-    uarthandler();
+   
     wait(serial_port.isema);
     
-
+    
+    //
+    serial_port.in[istart] = c;// use istart to store the first byte in input buffer uchar c is your character 
+    serial_port.icount--;//decrement icount
+    serial_port.in[istart++];//increment index with respect to UART
 	restore(im);
 	return c;
 }
@@ -67,13 +72,10 @@ syscall putc(char c)
     else//if not idle
     {
         wait(serial_port.osema);//wait on count, for input bytes to be ready
-        serial_port.olock = lock_create();//create lock and return id to olock
         lock_acquire(serial_port.olock);
-        serial_port.out[serial_port.ostart%UART_OBLEN] = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
+        serial_port.out[serial_port.ostart+serial_port.ocount]%UART_OBLEN = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
         serial_port.ostart++;//increment ostart
-        lock_release(serial_port.olock);
-        //lock_free(serial_port.olock);
-        //reset olock to 0?
+        lock_release(serial_port.olock);//release the spin lock
     }
 
 	restore(im);
