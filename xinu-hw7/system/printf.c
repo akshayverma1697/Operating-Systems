@@ -28,14 +28,11 @@ uchar getc(void)
 	 * Increment the index of the input buffer's first byte
 	 * with respect to the total length of the UART input buffer.
 	 */
-   
+    c = ((struct pl011_uart_csreg *) serial_port.csr)->dr;
     wait(serial_port.isema);
-    
-    
-    //
-    serial_port.in[istart] = c;// use istart to store the first byte in input buffer uchar c is your character 
+    serial_port.in[serial_port.istart] = c;// use istart to store the first byte in input buffer uchar c is your character 
     serial_port.icount--;//decrement icount
-    serial_port.in[istart++];//increment index with respect to UART
+    serial_port.in[(serial_port.istart+serial_port.icount)%UART_IBLEN];//increment index with respect to UART input buffer use modulus to make circular
 	restore(im);
 	return c;
 }
@@ -73,7 +70,7 @@ syscall putc(char c)
     {
         wait(serial_port.osema);//wait on count, for input bytes to be ready
         lock_acquire(serial_port.olock);
-        serial_port.out[serial_port.ostart+serial_port.ocount]%UART_OBLEN = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
+        serial_port.out[(serial_port.ostart+serial_port.ocount)%UART_OBLEN] = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
         serial_port.ostart++;//increment ostart
         lock_release(serial_port.olock);//release the spin lock
     }
