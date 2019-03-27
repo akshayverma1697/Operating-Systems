@@ -1,7 +1,6 @@
 /**
  * @file printf.c
  */
-//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu//
 /* Embedded Xinu, Copyright (C) 2018. All rights reserved. */
 
 #include <xinu.h>
@@ -28,11 +27,11 @@ uchar getc(void)
 	 * Increment the index of the input buffer's first byte
 	 * with respect to the total length of the UART input buffer.
 	 */
-    c = ((struct pl011_uart_csreg *) serial_port.csr)->dr;
-    wait(serial_port.isema);
-    serial_port.in[serial_port.istart] = c;// use istart to store the first byte in input buffer uchar c is your character 
-    serial_port.icount--;//decrement icount
-    serial_port.in[(serial_port.istart+serial_port.icount)%UART_IBLEN];//increment index with respect to UART input buffer use modulus to make circular
+    wait(serial_port.isema);//wait for input
+    c = serial_port.in[(serial_port.istart)];// use istart to store the first byte in input buffer uchar c is your character 
+    serial_port.icount--;//decrement icount (counter) in the input buffer
+    serial_port.istart=(serial_port.istart++)%UART_IBLEN;//increment index with respect to UART input buffer use modulus to make circular
+
 	restore(im);
 	return c;
 }
@@ -60,21 +59,20 @@ syscall putc(char c)
 	 * amount of bytes in buffer, and total length of the UART output buffer.
 	 * Then, increment the counter of bytes in the output buffer. Release the spinlock.
 	 */
-    
+
     if(serial_port.oidle)//checking to see if serial port is idle
     {//enter if statement 
         serial_port.oidle = FALSE;// set serial port to not idle
-        ((struct pl011_uart_csreg *) serial_port.csr)->dr = c;//write character to the data register
+        ((struct pl011_uart_csreg *)serial_port.csr)->dr = c;//write character to the data register
     }
-    else//if not idle
+    else if(serial_port.oidle == FALSE)//if not idle
     {
         wait(serial_port.osema);//wait on count, for input bytes to be ready
-        lock_acquire(serial_port.olock);
+        lock_acquire(serial_port.olock);//guard with spinlock
         serial_port.out[(serial_port.ostart+serial_port.ocount)%UART_OBLEN] = c;// set c equal to ostart(index to the buffers first byte) divided by BUFFLEN --making it circular
         serial_port.ostart++;//increment ostart
         lock_release(serial_port.olock);//release the spin lock
     }
-
 	restore(im);
 	return OK;
 }
