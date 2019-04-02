@@ -44,17 +44,18 @@ void *getmem(uint nbytes)
      *      - return memory address if successful
      */
     lock_acquire(memlock);
+	curr = &freelist;
     while(curr->next != NULL)
     {
 		struct memblk *blk;
      
-		if(sizeof(memblk) == nbytes)
+		if(memblk.length == nbytes)
 		{
-			(*blk).field; 
+			blk->length = nbytes; //(*blk).field; 
 			lock_release(memlock);
 			return &memblk;
 		}
-		else if(sizeof(memblk) > nbytes)
+		else if(memblk.length > nbytes)
 		{
 			prev = curr;
 			curr = curr->next;
