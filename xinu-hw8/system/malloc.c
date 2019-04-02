@@ -35,7 +35,14 @@ void *malloc(uint size)
       *         - handle possible error (SYSERR) from getmem...
       *      3) Set accounting info in pmem
       */  
-
+    
+    pmem->length = size;//allocate room for accounting info
+    struct memblock *temp = getmem(size); // temporary variable to hold memory address from getmem()
+    if(temp != SYSERR)//handles possible SYSERR from getmem
+    {
+        pmem->next = temp;//set accounting info inside struct (pmem)
+    }
+    
 
     return (void *)(pmem + 1);  /* +1 to skip accounting info */
 }
