@@ -49,19 +49,19 @@ void *getmem(uint nbytes)
     {
 		struct memblk *blk;
      
-		if(memblk.length == nbytes)
+		if(curr.length == nbytes)
 		{
 			blk->length = nbytes; //(*blk).field; 
 			lock_release(memlock);
-			return &memblk;
+			return &blk;
 		}
-		else if(memblk.length > nbytes)
+		else if(curr.length > nbytes)
 		{
-			prev = curr;
+			prev->length = curr->length;
 			curr = curr->next;
+			leftover = curr->length - nbytes;
 			curr->next =  leftover; //nbytes - sizeof(memblk)
 		}
-         
     }
     restore(im);
     return (void *)SYSERR;
