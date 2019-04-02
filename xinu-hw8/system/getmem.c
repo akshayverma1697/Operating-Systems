@@ -43,7 +43,14 @@ void *getmem(uint nbytes)
      *      - Release memory lock
      *      - return memory address if successful
      */
-
+    lock_aqcuire(memlock);
+    while(curr.next != null)
+    {
+     struct memblk *blk
+     
+     if(memblk == nbytes)
+         
+    }
     restore(im);
     return (void *)SYSERR;
 }
