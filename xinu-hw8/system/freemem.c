@@ -55,12 +55,11 @@ syscall freemem(void *memptr, uint nbytes)
 	next = freelist.next;
     while(next != NULL)
     {
-		struct memblk *blk;
 		if(block < next) // find where memory block should be placed back
 		{
 			if(prev < block) // prev < block < curr
 			{
-				top = prev->length + size;//retrive top of previous memblock
+				top = prev->length + nbytes;//retrive top of previous memblock
 				if(top != prev->length)
 				{
 					if(top != next->length)
