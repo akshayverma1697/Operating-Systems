@@ -48,7 +48,9 @@ void *getmem(uint nbytes)
     {
      struct memblk *blk
      
-     if(memblk == nbytes)
+     if(memblk == nbytes){(*blk).field; }
+
+     else if( memblk > nbytes){ }
          
     }
     restore(im);

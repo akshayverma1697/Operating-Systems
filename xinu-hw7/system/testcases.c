@@ -38,9 +38,9 @@ void testcases(void)
     enable();
 
     printf("===TEST BEGIN===\r\n");
-    printf("1)A or a: prints letter\r\n");
-    printf("2)B or b: waits to get 4 letters and prints them\r\n");
-    printf("3)C or c: see if buffer is circular\r\n");
+    printf("1)A or a: prints letter\r\n");//tests getc and putc
+    printf("2)B or b: waits to get 4 letters and prints them\r\n");//tests getc and putc for multiple characters
+    printf("3)C or c: see if buffer is circular\r\n");//tests buffer and printf.c
 
 	// TODO: Test your operating system!
     c = getc();
@@ -48,12 +48,12 @@ void testcases(void)
     {
 	case 'A':
 	case 'a':
-		printf("Case A:\n\r");
+		printf("Case A: write one character\n\r");
 		putc(c);
 		break;
 	case 'B':
 	case 'b':
-		printf("Case B:\n\r");
+		printf("Case B: Please type 4 characters\n\r");
 		while(i < 4)
 		{
 			c = getc();
@@ -69,10 +69,11 @@ void testcases(void)
 			if(k == 1024)
 			{
 				putc('W');
+                printf("\r\n");
 			}
 			else
 			{
-				putc('\r\nQ');
+				putc('Q');
 			}
 		}
 		break;
