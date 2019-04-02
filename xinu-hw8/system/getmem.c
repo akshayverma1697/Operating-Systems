@@ -43,14 +43,23 @@ void *getmem(uint nbytes)
      *      - Release memory lock
      *      - return memory address if successful
      */
-    lock_aqcuire(memlock);
-    while(curr.next != null)
+    lock_acquire(memlock);
+    while(curr->next != NULL)
     {
-     struct memblk *blk
+		struct memblk *blk;
      
-     if(memblk == nbytes){(*blk).field; }
-
-     else if( memblk > nbytes){ }
+		if(sizeof(memblk) == nbytes)
+		{
+			(*blk).field; 
+			lock_release(memlock);
+			return &memblk;
+		}
+		else if(sizeof(memblk) > nbytes)
+		{
+			prev = curr;
+			curr = curr->next;
+			curr->next =  leftover; //nbytes - sizeof(memblk)
+		}
          
     }
     restore(im);
