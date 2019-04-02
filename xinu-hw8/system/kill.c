@@ -48,7 +48,7 @@ syscall kill(int pid)
 
     case PRREADY:
         //remove(pid);
-		freemem(pid, sizeof(pid));
+		freemem(ppcb->stkbase, ppcb->stklen); // look at ppcb struct for address and size
 
     default:
         ppcb->state = PRFREE;
