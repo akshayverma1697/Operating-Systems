@@ -7,7 +7,7 @@ COMP = system
 
 # Important system components
 C_FILES = initialize.c platforminit.c kprintf.c testcases.c \
-		  mmu.c unparkcore.c spinlock.c \
+		  mmu.c unparkcore.c spinlock.c getstk.c \
           create.c resched.c queue.c ready.c kill.c \
           dispatch.c clkinit.c clkhandler.c timer.c \
 		  semcreate.c semfree.c wait.c signal.c signaln.c \

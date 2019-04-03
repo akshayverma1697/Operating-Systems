@@ -64,8 +64,22 @@ syscall freemem(void *memptr, uint nbytes)
 				{
 					if(top != next->length)
 					{
-							prev->next = block;
-							block->next = next;
+						prev->next = block;
+						block->next = next;
+					}
+				}
+			}
+		}
+		else if(block == next)
+		{
+			if(prev < block)
+			{
+				top = prev->length + nbytes;//retrive top of previous memblock
+				if(top != prev->length)
+				{
+					if(top != next->length)
+					{
+						next->length = next->length + block->length;
 					}
 				}
 			}

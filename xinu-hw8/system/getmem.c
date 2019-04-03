@@ -47,24 +47,37 @@ void *getmem(uint nbytes)
     lock_acquire(memlock);
 	prev = &freelist;
 	curr = freelist.next;
-	leftover = curr;
-	//struct memblk *blk;
-    while(curr->next != NULL)
+	leftover = curr; //---
+	
+    while(curr != NULL)
     {
 		if(curr->length == nbytes)
 		{
+			prev->next = curr->next;
+			
 			lock_release(memlock);
+			restore(im);
 			return curr;
 		}
 		else if(curr->length > nbytes)
 		{
-			prev->length = curr->length;
-			curr = curr->next;
+			//prev->length = curr->length;
+			leftover = curr;
 			leftover->length = curr->length - nbytes;
-			curr->next =  leftover; //nbytes - sizeof(memblk)
+			curr->length = nbytes;
+			prev->next = leftover;
+			leftover->next = curr->next;
+			
+			//curr = curr->next;
+			//leftover->length = curr->length - nbytes;
+			//curr->next =  leftover; //nbytes - sizeof(memblk)
+			
 			lock_release(memlock);
+			restore(im);
 			return curr;
 		}
+		curr = curr->next;
+		prev = prev->next;
     }
     restore(im);
     return (void *)SYSERR;
