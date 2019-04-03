@@ -38,7 +38,7 @@ void *malloc(uint size)
       */  
     
 	pmem = &freelist;
-    pmem->length = size + sizeof(memblock);//allocate room for accounting info
+    pmem->length = size + sizeof(struct memblock);//allocate room for accounting info
     struct memblock *temp = getmem(size); // temporary variable to hold memory address from getmem()
     if(temp != (void *) SYSERR)//handles possible SYSERR from getmem
     {
