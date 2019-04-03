@@ -46,10 +46,9 @@ void testcases(void)
     c = getc();
     switch (c)
     {
-	case 'A':
-	case 'a':
-		printf("Case A: write one character\n\r");
-		putc(c);
+	case '1'::
+		printf("Case1: print freelist\n\r");
+		
 		break;
 	case 'B':
 	case 'b':

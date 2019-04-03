@@ -53,7 +53,6 @@ void *getmem(uint nbytes)
     {
 		if(curr->length == nbytes)
 		{
-			curr->length = nbytes; //(*blk).field; 
 			lock_release(memlock);
 			return curr;
 		}
