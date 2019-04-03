@@ -46,7 +46,7 @@ void testcases(void)
     c = getc();
     switch (c)
     {
-	case '1'::
+	case '1':
 		printf("Case1: print freelist\n\r");
 		
 		break;
