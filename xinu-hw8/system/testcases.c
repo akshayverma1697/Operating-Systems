@@ -39,7 +39,7 @@ void testcases(void)
 
     printf("===TEST BEGIN===\r\n");
     printf("1)1: Print Freelist\r\n");//tests getc and putc
-    printf("2)B or b: waits to get 4 letters and prints them\r\n");//tests getc and putc for multiple characters
+    printf("2)2: waits to get 4 letters and prints them\r\n");//tests getc and putc for multiple characters
     printf("3)C or c: see if buffer is circular\r\n");//tests buffer and printf.c
 
 	// TODO: Test your operating system!
@@ -50,8 +50,7 @@ void testcases(void)
 		printf("Case A: Printing Freelist\n\r");
 		printFreeList();
 		break;
-	case 'B':
-	case 'b':
+	case '2':
 		printf("Case B: Please type 4 characters\n\r");
 		while(i < 4)
 		{
@@ -115,6 +114,7 @@ void printFreeList(void)
 		printf("Memblock address: %d \r\n", block);
 		printf("Memblock length: %d \r\n", block->length);
 		printf("Memblock next: %d \r\n", block->next);
+		block = block->next;
 	}
 	
 }
