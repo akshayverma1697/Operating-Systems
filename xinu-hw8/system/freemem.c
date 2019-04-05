@@ -67,20 +67,21 @@ syscall freemem(void *memptr, uint nbytes)
 					{
 						prev->next = block;
 						block->next = next;
-					}
-				}
-			}
-		}
-		else if(block == next)
-		{
-			if(prev < block)
-			{
-				top = prev->length + nbytes;//retrive top of previous memblock
-				if(top != prev->length)
-				{
-					if(top != next->length)
-					{
-						next->length = next->length + block->length;
+						if( ((uint)block + nbytes) == (uint)next - 1)// shift starting address of block by 1
+						{
+							block->next = next->next;
+							block->length += block->length;
+							next->next = next;
+						}
+						if( ((uint)prev + prev->length) == (uint)block -1)
+						{
+							prev->next = block->next;
+							prev->length += block->length;
+							block->next = block;
+						}
+						lock_release(memlock);
+						restore(im);
+						return OK;
 					}
 				}
 			}
@@ -88,7 +89,7 @@ syscall freemem(void *memptr, uint nbytes)
 		next = next->next;
 		prev = next;
     }
-	
+	lock_release(memlock);	
 	restore(im);
     return OK;
 }

@@ -54,7 +54,7 @@ void *getmem(uint nbytes)
 		if(curr->length == nbytes)
 		{
 			prev->next = curr->next;
-
+			curr->next = curr;
 			lock_release(memlock);
 			restore(im);
 			return curr;
