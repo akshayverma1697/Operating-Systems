@@ -1,6 +1,6 @@
 // TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
- * @file freemem.c
+ * @file getmem.c
  *
  */
 /* Embedded Xinu, Copyright (C) 2009.  All rights reserved. */
@@ -10,85 +10,75 @@
 /**
  * @ingroup memory_mgmt
  *
- * Frees a block of heap-allocated memory.
- *
- * @param memptr
- *      Pointer to memory block allocated with memget().
+ * Allocate heap memory.
  *
  * @param nbytes
- *      Length of memory block, in bytes.  (Same value passed to memget().)
+ *      Number of bytes requested.
  *
  * @return
- *      ::OK on success; ::SYSERR on failure.  This function can only fail
- *      because of memory corruption or specifying an invalid memory block.
+ *      ::SYSERR if @p nbytes was 0 or there is no memory to satisfy the
+ *      request; otherwise returns a pointer to the allocated memory region.
+ *      The returned pointer is guaranteed to be 8-byte aligned.  Free the block
+ *      with memfree() when done with it.
  */
-syscall freemem(void *memptr, uint nbytes)
+void *getmem(uint nbytes)
 {
-    register struct memblock *block, *next, *prev;
+    register memblk *prev, *curr, *leftover;
     irqmask im;
-    ulong top;
 
-    /* make sure block is in heap */
-    if ((0 == nbytes)
-        || ((ulong)memptr < (ulong)memheap)
-        || ((ulong)memptr > (ulong)platform.maxaddr))
+    if (0 == nbytes)
     {
-        return SYSERR;
+        return (void *)SYSERR;
     }
 
-    block = (struct memblock *)memptr;
+    /* round to multiple of memblock size   */
     nbytes = (ulong)roundmb(nbytes);
 
     im = disable();
 
 	/* TODO:
      *      - Acquire memory lock (memlock)
-     *      - Find where the memory block should
-     *        go back onto the freelist (based on address)
-     *      - Find top of previous memblock
-     *      - Make sure block is not overlapping on prev or next blocks
-     *      - Coalesce with previous block if adjacent
-     *      - Coalesce with next block if adjacent
+     *      - Traverse through the freelist
+     *        to find a block that's suitable 
+     *        (Use First Fit with simple compaction)
+     *      - Release memory lock
+     *      - return memory address if successful
      */
-
-	lock_acquire(memlock); // acquire memory lock
+    lock_acquire(memlock);
 	prev = &freelist;
-	next = freelist.next;
-    while(next != NULL)
-    {
-		if(block < next) // find where memory block should be placed back
-		{
-			if(prev < block) // prev < block < curr
-			{
-				top = prev->length + nbytes;//retrive top of previous memblock
-				if(top != prev->length)
-				{
-					if(top != next->length)
-					{
-						prev->next = block;
-						block->next = next;
-					}
-				}
-			}
-		}
-		else if(block == next)
-		{
-			if(prev < block)
-			{
-				top = prev->length + nbytes;//retrive top of previous memblock
-				if(top != prev->length)
-				{
-					if(top != next->length)
-					{
-						next->length = next->length + block->length;
-					}
-				}
-			}
-		}
-		next = next->next;
-		prev = next;
-    }
+	curr = freelist.next;
+	leftover = curr; //---
 	
-	restore(im);
-    return OK;
+    while(curr != NULL)
+    {
+		if(curr->length == nbytes)
+		{
+			prev->next = curr->next;
+			
+			lock_release(memlock);
+			restore(im);
+			return curr;
+		}
+		else if(curr->length > nbytes)
+		{
+			//prev->length = curr->length;
+			leftover = curr;
+			leftover->length = curr->length - nbytes;
+			curr->length = nbytes;
+			prev->next = leftover;
+			leftover->next = curr->next;
+			
+			//curr = curr->next;
+			//leftover->length = curr->length - nbytes;
+			//curr->next =  leftover; //nbytes - sizeof(memblk)
+			
+			lock_release(memlock);
+			restore(im);
+			return curr;
+		}
+		curr = curr->next;
+		prev = prev->next;
+    }
+    restore(im);
+    return (void *)SYSERR;
 }
