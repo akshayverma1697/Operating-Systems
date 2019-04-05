@@ -41,7 +41,7 @@ void *malloc(uint size)
     //add 8 bytes to the stack
     //this is needed to allocate and acquire memory with getmem
     
-    if(pmem = getmem(size) == SYSERR)//check if the memory address of the block is null so it can't be used
+    if((pmem = getmem(size)) == SYSERR)//check if the memory address of the block is null so it can't be used
     {
         return NULL;
     }
@@ -50,21 +50,6 @@ void *malloc(uint size)
         pmem->length = size;//store the block size into the buffer
         pmem->next = pmem;
     }
-    
-    
-    /*
-	pmem = &freelist;
-	size = sizeof(uint) + sizeof(struct memblock) + size;
-    pmem->length = size;//allocate room for accounting info
-    struct memblock *temp = getmem(size); // temporary variable to hold memory address from getmem()
-    if(temp != (void *) SYSERR)//handles possible SYSERR from getmem
-    {
-        pmem = temp;//set accounting info inside struct (pmem)
-    }
-	else
-	{
-		return SYSERR;
-	}
-    */
+
     return (void *)(pmem + 1);  /* +1 to skip accounting info */
 }

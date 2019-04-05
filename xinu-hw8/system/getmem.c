@@ -23,38 +23,38 @@
  */
 void *getmem(uint nbytes)
 {
-    register memblk *prev, *curr, *leftover;
-    irqmask im;
+	register memblk *prev, *curr, *leftover;
+	irqmask im;
 
-    if (0 == nbytes)
-    {
-        return (void *)SYSERR;
-    }
+	if (0 == nbytes)
+	{
+		return (void *)SYSERR;
+	}
 
-    /* round to multiple of memblock size   */
-    nbytes = (ulong)roundmb(nbytes);
+	/* round to multiple of memblock size   */
+	nbytes = (ulong)roundmb(nbytes);
 
-    im = disable();
+	im = disable();
 
 	/* TODO:
-     *      - Acquire memory lock (memlock)
-     *      - Traverse through the freelist
-     *        to find a block that's suitable 
-     *        (Use First Fit with simple compaction)
-     *      - Release memory lock
-     *      - return memory address if successful
-     */
-    lock_acquire(memlock);
+	 *      - Acquire memory lock (memlock)
+	 *      - Traverse through the freelist
+	 *        to find a block that's suitable 
+	 *        (Use First Fit with simple compaction)
+	 *      - Release memory lock
+	 *      - return memory address if successful
+	 */
+	lock_acquire(memlock);
 	prev = &freelist;
 	curr = freelist.next;
 	leftover = curr; //---
-	
-    while(curr != NULL)
-    {
+
+	while(curr != NULL)
+	{
 		if(curr->length == nbytes)
 		{
 			prev->next = curr->next;
-			
+
 			lock_release(memlock);
 			restore(im);
 			return curr;
@@ -67,18 +67,20 @@ void *getmem(uint nbytes)
 			curr->length = nbytes;
 			prev->next = leftover;
 			leftover->next = curr->next;
-			
+			curr->next = curr; //takes block out of freelist
+
 			//curr = curr->next;
 			//leftover->length = curr->length - nbytes;
 			//curr->next =  leftover; //nbytes - sizeof(memblk)
-			
+
 			lock_release(memlock);
 			restore(im);
 			return curr;
 		}
 		curr = curr->next;
 		prev = prev->next;
-    }
-    restore(im);
-    return (void *)SYSERR;
+	}
+	lock_release(memlock);
+	restore(im);
+	return (void *)SYSERR;
 }
