@@ -31,7 +31,7 @@ syscall kill(int pid)
     ppcb = &proctab[pid];
 
     _atomic_decrement(&numproc);
-
+	freemem(ppcb->stkbase, ppcb->stklen);
     if (numproc <= 4)
     {
         // all processes are done running
@@ -47,8 +47,8 @@ syscall kill(int pid)
         resched();
 
     case PRREADY:
-        remove(pid);
-
+       remove(pid);
+//	freemem(ppcb->stkbase, ppcb->stklen);
     default:
         ppcb->state = PRFREE;
     }

@@ -62,7 +62,7 @@ void *getmem(uint nbytes)
 		else if(curr->length > nbytes)
 		{
 			//prev->length = curr->length;
-			leftover = curr;
+			leftover = (uint)curr + nbytes;
 			leftover->length = curr->length - nbytes;
 			curr->length = nbytes;
 			prev->next = leftover;

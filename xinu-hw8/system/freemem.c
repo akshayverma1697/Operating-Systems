@@ -54,41 +54,59 @@ syscall freemem(void *memptr, uint nbytes)
 	lock_acquire(memlock); // acquire memory lock
 	prev = &freelist;
 	next = freelist.next;
-    while(next != NULL)
+    
+    while(next != NULL && block > next)
     {
-		if(block < next) // find where memory block should be placed back
+		prev = next;
+		next = next->next;
+    }
+    
+    
+    //getting top of prev memblock
+	if(block < next)
+	{
+		if(prev < block)
 		{
-			if(prev < block) // prev < block < curr
+			top = (uint)prev + prev->length;
+			if(top != prev->length)
 			{
-				top = prev->length + nbytes;//retrive top of previous memblock
-				if(top != prev->length)
+				if(top!= next->length)
 				{
-					if(top != next->length)
-					{
-						prev->next = block;
-						block->next = next;
-						if( ((uint)block + nbytes) == (uint)next - 1)// shift starting address of block by 1
-						{
-							block->next = next->next;
-							block->length += block->length;
-							next->next = next;
-						}
-						if( ((uint)prev + prev->length) == (uint)block -1)
-						{
-							prev->next = block->next;
-							prev->length += block->length;
-							block->next = block;
-						}
-						lock_release(memlock);
-						restore(im);
-						return OK;
-					}
+					prev->next = block;//setting block
+					block->next = next;
+					block->length = nbytes;//puts block into freelist
 				}
 			}
 		}
-		next = next->next;
-		prev = next;
+	}
+	
+	//make sure block doesnt overlapp with next
+	if((block->length + (uint)block)> next)
+	{
+		return SYSERR;
+	}
+	//make sure block doesnt overlapp with prev
+	if(((uint)prev + prev->length) > block)
+	{
+		return SYSERR;
+	}
+	
+	//compacting
+	if( ((uint)block + nbytes) == (uint)next)// shift starting address of block by 1
+    {
+        block->next = next->next;
+        block->length += block->length;
+        next->next = next;
     }
+    //compacting
+    if( ((uint)prev + prev->length) == (uint)block)
+    {
+        prev->next = block->next;
+        prev->length += block->length;
+        block->next = block;
+    }
+    
+    
 	lock_release(memlock);	
 	restore(im);
     return OK;

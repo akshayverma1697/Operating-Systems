@@ -26,6 +26,13 @@ syscall free(void *ptr)
      */
 
 	block = (struct memblock *)ptr;
+	block--;//decrement block to take away 8 bytes
+
+	if(block->next != block)//sanity check
+	{
+		return SYSERR;
+	}
+
 	freemem(ptr, block->length);// call freemem on the block with its length, 
 	//block pointing to length (block->length) will be used to find accounting info
 	
