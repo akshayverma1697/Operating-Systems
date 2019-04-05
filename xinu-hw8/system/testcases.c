@@ -38,7 +38,7 @@ void testcases(void)
     enable();
 
     printf("===TEST BEGIN===\r\n");
-    printf("1)A or a: prints letter\r\n");//tests getc and putc
+    printf("1)1: Print Freelist\r\n");//tests getc and putc
     printf("2)B or b: waits to get 4 letters and prints them\r\n");//tests getc and putc for multiple characters
     printf("3)C or c: see if buffer is circular\r\n");//tests buffer and printf.c
 
@@ -46,10 +46,9 @@ void testcases(void)
     c = getc();
     switch (c)
     {
-	case 'A':
-	case 'a':
-		printf("Case A: write one character\n\r");
-		putc(c);
+	case '1':
+		printf("Case A: Printing Freelist\n\r");
+		printFreeList();
 		break;
 	case 'B':
 	case 'b':
@@ -104,4 +103,18 @@ void print_sem(semaphore sem)
     printf("%d->count: %d\r\n", sem, semptr->count);
     printf("%d->queue: %s\r\n\r\n", sem,
            (isempty(semptr->queue)) ? "EMPTY" : "NONEMPTY");
+}
+
+// *** Student made helper functions for tests ***
+void printFreeList(void)
+{
+	register struct memblock *block;
+	block = &freelist;
+	while(block != NULL)
+	{
+		printf("Memblock address: %d \r\n", block);
+		printf("Memblock length: %d \r\n", block->length);
+		printf("Memblock next: %d \r\n", block->next);
+	}
+	
 }
