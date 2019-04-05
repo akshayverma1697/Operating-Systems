@@ -47,8 +47,7 @@ syscall kill(int pid)
         resched();
 
     case PRREADY:
-        //remove(pid);
-		freemem(ppcb->stkbase, ppcb->stklen); // look at ppcb struct for address and size
+        remove(pid);
 
     default:
         ppcb->state = PRFREE;

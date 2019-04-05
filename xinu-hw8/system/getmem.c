@@ -1,4 +1,3 @@
-// TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file getmem.c
  *
@@ -44,41 +43,7 @@ void *getmem(uint nbytes)
      *      - Release memory lock
      *      - return memory address if successful
      */
-    lock_acquire(memlock);
-	prev = &freelist;
-	curr = freelist.next;
-	leftover = curr; //---
-	
-    while(curr != NULL)
-    {
-		if(curr->length == nbytes)
-		{
-			prev->next = curr->next;
-			
-			lock_release(memlock);
-			restore(im);
-			return curr;
-		}
-		else if(curr->length > nbytes)
-		{
-			//prev->length = curr->length;
-			leftover = curr;
-			leftover->length = curr->length - nbytes;
-			curr->length = nbytes;
-			prev->next = leftover;
-			leftover->next = curr->next;
-			
-			//curr = curr->next;
-			//leftover->length = curr->length - nbytes;
-			//curr->next =  leftover; //nbytes - sizeof(memblk)
-			
-			lock_release(memlock);
-			restore(im);
-			return curr;
-		}
-		curr = curr->next;
-		prev = prev->next;
-    }
+
     restore(im);
     return (void *)SYSERR;
 }
