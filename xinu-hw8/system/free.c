@@ -1,3 +1,4 @@
+// TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file free.c
  */
@@ -24,5 +25,9 @@ syscall free(void *ptr)
      *      3) call freemem on the block with its length
      */
 
+	block = (struct memblock *)ptr;
+	freemem(ptr, block->length);// call freemem on the block with its length, 
+	//block pointing to length (block->length) will be used to find accounting info
+	
     return OK;
 }

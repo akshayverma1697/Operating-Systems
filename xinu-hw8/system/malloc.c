@@ -1,3 +1,4 @@
+// TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file malloc.c
  * This file is deprecated in favor of mem/malloc.c and the user heap
@@ -35,7 +36,19 @@ void *malloc(uint size)
       *         - handle possible error (SYSERR) from getmem...
       *      3) Set accounting info in pmem
       */  
-
+    
+	pmem = &freelist;
+	size = sizeof(uint) + sizeof(struct memblock) + size;
+    pmem->length = size;//allocate room for accounting info
+    struct memblock *temp = getmem(size); // temporary variable to hold memory address from getmem()
+    if(temp != (void *) SYSERR)//handles possible SYSERR from getmem
+    {
+        pmem = temp;//set accounting info inside struct (pmem)
+    }
+	else
+	{
+		return SYSERR;
+	}
 
     return (void *)(pmem + 1);  /* +1 to skip accounting info */
 }

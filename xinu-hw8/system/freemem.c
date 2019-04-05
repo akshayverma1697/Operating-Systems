@@ -1,3 +1,4 @@
+// TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file freemem.c
  *
@@ -50,6 +51,44 @@ syscall freemem(void *memptr, uint nbytes)
      *      - Coalesce with next block if adjacent
      */
 
+	lock_acquire(memlock); // acquire memory lock
+	prev = &freelist;
+	next = freelist.next;
+    while(next != NULL)
+    {
+		if(block < next) // find where memory block should be placed back
+		{
+			if(prev < block) // prev < block < curr
+			{
+				top = prev->length + nbytes;//retrive top of previous memblock
+				if(top != prev->length)
+				{
+					if(top != next->length)
+					{
+						prev->next = block;
+						block->next = next;
+					}
+				}
+			}
+		}
+		else if(block == next)
+		{
+			if(prev < block)
+			{
+				top = prev->length + nbytes;//retrive top of previous memblock
+				if(top != prev->length)
+				{
+					if(top != next->length)
+					{
+						next->length = next->length + block->length;
+					}
+				}
+			}
+		}
+		next = next->next;
+		prev = next;
+    }
+	
 	restore(im);
     return OK;
 }
