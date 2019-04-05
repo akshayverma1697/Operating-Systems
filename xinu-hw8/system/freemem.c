@@ -51,61 +51,58 @@ syscall freemem(void *memptr, uint nbytes)
      *      - Coalesce with next block if adjacent
      */
 
+    //use ulong because top is a ulong//
+    
 	lock_acquire(memlock); // acquire memory lock
 	prev = &freelist;
 	next = freelist.next;
     
-    while(next != NULL && block > next)
+    while((next != NULL) && (block > next))
     {
 		prev = next;
 		next = next->next;
     }
     
+    if(prev == &freelist)
+    {
+        top = NULL;//top is null if prev is the address of the freelist
+    }
+    else
+    {
+        top = (ulong)prev + prev->length;//getting top of prev memblock
+    }
     
-    //getting top of prev memblock
-	if(block < next)
-	{
-		if(prev < block)
-		{
-			top = (uint)prev + prev->length;
-			if(top != prev->length)
-			{
-				if(top!= next->length)
-				{
-					prev->next = block;//setting block
-					block->next = next;
-					block->length = nbytes;//puts block into freelist
-				}
-			}
-		}
-	}
-	
-	//make sure block doesnt overlapp with next
-	if((block->length + (uint)block)> next)
-	{
-		return SYSERR;
-	}
-	//make sure block doesnt overlapp with prev
-	if(((uint)prev + prev->length) > block)
-	{
-		return SYSERR;
-	}
-	
-	//compacting
-	if( ((uint)block + nbytes) == (uint)next)// shift starting address of block by 1
+    if(((top > (ulong)block) || (next != NULL)) && ((((ulong)block + nbytes) > (ulong)next) || (((ulong)prev + prev->length) > block)))//make sure block isnt overlapping with prev 
+    {
+        restore(im);
+        lock_release(memlock);
+        return SYSERR;
+    }
+    
+    freelist.length += nbytes;
+    
+    	//compacting
+	if( ((ulong)block + nbytes) == (ulong)next)
     {
         block->next = next->next;
         block->length += block->length;
         next->next = next;
     }
     //compacting
-    if( ((uint)prev + prev->length) == (uint)block)
+    if( ((ulong)prev + prev->length) == (ulong)block)
     {
         prev->next = block->next;
         prev->length += block->length;
         block->next = block;
     }
     
+	if(((ulong)block + block->length) == (ulong)next)
+    {
+        block->length += next->length;
+        block->next = next->next;
+    }
+    
+
     
 	lock_release(memlock);	
 	restore(im);

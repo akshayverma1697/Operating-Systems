@@ -36,20 +36,13 @@ void *malloc(uint size)
       *         - handle possible error (SYSERR) from getmem...
       *      3) Set accounting info in pmem
       */  
-    
-    size += sizeof(struct memblock);
-    //add 8 bytes to the stack
-    //this is needed to allocate and acquire memory with getmem
-    
-    if((pmem = getmem(size)) == SYSERR)//check if the memory address of the block is null so it can't be used
+    pmem = getmem(size + (sizeof(struct memblock)));//make room for accounting info by adding 8 bytes and acquire memory with getmem and set that equal to pmem
+    if(pmem == NULL)//handle possible error
     {
-        return NULL;
+	return 0;
     }
-    else
-    {
-        pmem->length = size;//store the block size into the buffer
-        pmem->next = pmem;
-    }
+    
+    pmem->length = size; // set accounting info in pmem
 
     return (void *)(pmem + 1);  /* +1 to skip accounting info */
 }

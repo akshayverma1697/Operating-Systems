@@ -39,8 +39,8 @@ void testcases(void)
 
     printf("===TEST BEGIN===\r\n");
     printf("1)1: Print Freelist\r\n");//tests getc and putc
-    printf("2)2: waits to get 4 letters and prints them\r\n");//tests getc and putc for multiple characters
-    printf("3)C or c: see if buffer is circular\r\n");//tests buffer and printf.c
+    printf("2)2: Test for Malloc\r\n");//tests getc and putc for multiple characters
+    printf("3)3: Test for Free\r\n");//tests buffer and printf.c
 
 	// TODO: Test your operating system!
     c = getc();
@@ -48,16 +48,14 @@ void testcases(void)
     {
 	case '1':
 		printf("Case A: Printing Freelist\n\r");
-		printFreeList();
+ 		printFreeList(); // function prints freelist
 		break;
 	case '2':
-		printf("Case B: Please type 4 characters\n\r");
-		while(i < 4)
-		{
-			c = getc();
-			putc(c);
-			i++;
-		}
+		printf("Case B: Using malloc to dynamically allocate an array of 10 elements.\n\r");
+		int *array;
+        array = malloc(10 * sizeof(int));
+       // printf("Size of array = %d\r\n", (sizeof(array)/(sizeof(array[0])));
+         printFreeList();
 		break;
 	case 'C':
 	case 'c':
@@ -105,10 +103,11 @@ void print_sem(semaphore sem)
 }
 
 // *** Student made helper functions for tests ***
+
 void printFreeList(void)
 {
 	register struct memblock *block;
-	block = &freelist;
+	block = freelist.next;
 	while(block != NULL)
 	{
 		printf("Memblock address: %d \r\n", block);

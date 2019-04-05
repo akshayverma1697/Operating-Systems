@@ -44,43 +44,46 @@ void *getmem(uint nbytes)
 	 *      - Release memory lock
 	 *      - return memory address if successful
 	 */
-	lock_acquire(memlock);
-	prev = &freelist;
-	curr = freelist.next;
-	leftover = curr; //---
-
+	lock_acquire(memlock);//aqcuire memory lock
+	prev = &freelist;//set prev to memory address of freelist
+	curr = freelist.next;//set current to the adjacent memory block in the freelist
+	//leftover = curr; //initial pointer to leftover
 	while(curr != NULL)
 	{
-		if(curr->length == nbytes)
+		if(curr->length == nbytes)//first comparisson--if memory block is the exact size as the memory to be allocated
 		{
-			prev->next = curr->next;
-			curr->next = curr;
-			lock_release(memlock);
-			restore(im);
-			return curr;
-		}
-		else if(curr->length > nbytes)
+            //restructuring linked list of freelist
+			prev->next = curr->next;//previous next links to the one after current
+			freelist.length = freelist.length - nbytes; //get rid of allocated memory from freelist
+			curr->next = curr;//remove current 
+			lock_release(memlock);//release lock
+			restore(im);//restore interrupts
+			return (void *) curr;//return curr
+		} 
+		else if(curr->length > nbytes)//if memory block has more memory than what needs to be allocated (you will have leftovers)
 		{
-			//prev->length = curr->length;
-			leftover = (uint)curr + nbytes;
-			leftover->length = curr->length - nbytes;
-			curr->length = nbytes;
-			prev->next = leftover;
-			leftover->next = curr->next;
+			leftover = (struct memblock *)((uint)curr + nbytes);//leftover has the size of curr + memory(nbytes)
+			
+			leftover->length = curr->length - nbytes;//the length of leftovers is the curr length minus what is being allocated
+            curr->length = nbytes;//retrieve currents length
+			
+			leftover->next = curr->next;//set curr next to be after leftover
+			
+			prev->next = leftover;//link the adjacent block to prev to be leftover
+
+			
+			freelist.length = freelist.length - nbytes;
+			
 			curr->next = curr; //takes block out of freelist
 
-			//curr = curr->next;
-			//leftover->length = curr->length - nbytes;
-			//curr->next =  leftover; //nbytes - sizeof(memblk)
-
 			lock_release(memlock);
 			restore(im);
-			return curr;
+			return (void *) curr;
 		}
 		curr = curr->next;
 		prev = prev->next;
 	}
-	lock_release(memlock);
+	lock_release(memlock); // in case other cases don't work and the lock needs to be released
 	restore(im);
 	return (void *)SYSERR;
 }
