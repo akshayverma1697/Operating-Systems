@@ -65,10 +65,10 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		freeblk->fr_count++;
 
 		seek(diskfd, freeblk->fr_blocknum);
-		if(write(diskfd, freeblk, sizeof(struct freeblock)==SYSERR)
-			{
-				return SYSERR;
-			}   
+		if(write(diskfd, freeblk, sizeof(struct freeblock))==SYSERR)
+		{
+			return SYSERR;
+		}   
 				//free2 
 	}	
 
@@ -85,4 +85,4 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 				}
 				*/
 				return SYSERR;
-				} 
+} 
