@@ -22,24 +22,19 @@ devcall fileDelete(int fd)
     //  Use the superblock's locks to guarantee mutually exclusive
     //  access to the directory index.
     
-    if((NULL == supertab) || (NULL == filetab)
-        || (isbadfd(fd)) || (FILE_FREE == filetab[fd].fn_state))
+    if((NULL == supertab) || (NULL == filetab))
     {
         return SYSERR;
     }
     
+    wait(supertab->sb_dirlock);
     
-    if(FILE_DIRTY & filetab[fd].fn_state)
-    {
-        seek(DISK0, filetab[fd].fn_blocknum);
-        write(DISK0, filetab[fd].fn_data, DISKBLOCKLEN);
-        filetab[fd].fn_state &= ~FILE_DIRTY;
-    }
-    filetab[fd].fn_state &= ~FILE_OPEN;
+    sbFreeBlock(supertab, supertab->sb_dirlst->db_fnodes[fd].fn_blocknum);
+	supertab->sb_dirlst->db_fnodes[fd].fn_state = FILE_FREE;
+    seek(DISK0, filetab[fd].fn_blocknum);
+    write(DISK0, filetab[fd].fn_data, DISKBLOCKLEN);
     
-    wait(supertab->sb_freelock);
-    seek(DISK0, supertab->sb_dirlst->db_blocknum);
-    signal(supertab->sb_dirlock);
+    signal(supertab->sd_dirlock);
     
     
     return OK;
