@@ -69,7 +69,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		
 		swizzle = psuper->sb_dirlst;
 
-		psuper->sb_dirlst = (struct freelst*)swizzle->db_blocknum;//head
+		psuper->sb_dirlst = (struct dirblock*)swizzle->db_blocknum;//head
 
 		seek(diskfd, psuper->sb_blocknum);
 		if(write(diskfd, psuper, sizeof(struct freeblock)) == SYSERR)

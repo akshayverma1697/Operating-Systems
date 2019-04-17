@@ -32,9 +32,9 @@ devcall fileDelete(int fd)
     sbFreeBlock(supertab, supertab->sb_dirlst->db_fnodes[fd].fn_blocknum);
 	supertab->sb_dirlst->db_fnodes[fd].fn_state = FILE_FREE;
     seek(DISK0, filetab[fd].fn_blocknum);
-    write(DISK0, filetab[fd].fn_data, DISKBLOCKLEN);
+    write(DISK0, filetab[fd].fn_data, sizeof(struct dirblock));
     
-    signal(supertab->sd_dirlock);
+    signal(supertab->sb_dirlock);
     
     
     return OK;
