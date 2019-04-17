@@ -51,8 +51,9 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 	{
 		freeblock = freeblock->fr_next;//traverse freelist until it reaches the end
 	}
-		//third condition
-	if(psuper->sb_freelst == NULL)
+    
+    if(psuper->sb_freelst == NULL)//third condition if sb is pointing to null
+
 	{
 		freeblock = (struct freeblock*)malloc(sizeof(struct freeblock));//creates new freeblock
 		freeblock->fr_blocknum = block;
@@ -77,7 +78,9 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		}
 		psuper->sb_dirlst = swizzle;
 	}
-	else if(freeblock->fr_count < FREEBLOCKMAX)//first conditon see if there is enough space
+	
+    
+    if(freeblock->fr_count < FREEBLOCKMAX)//first conditon see if there is enough space
 	{
 		freeblock->fr_free[freeblock->fr_count] = block;//puts block back into list?????
 		freeblock->fr_count = freeblock->fr_count+1;
@@ -88,7 +91,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 			return SYSERR;
 		}   
 	}
-	else//second condition if its greater than or equal
+    else if(freeblock->fr_count >= FREEBLOCKMAX)//second condition if its greater than or equal hence create new accounting block
 	{
 		free2 = (struct freeblock*)malloc(sizeof(struct freeblock));//create new block of memory containing the same size as as freeblock
 		free2->fr_blocknum = block;
@@ -103,6 +106,9 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 			return SYSERR;
 		}
 	}
+
+
+
 	
 
 signal(psuper ->sb_freelock);//free up semaphore	
