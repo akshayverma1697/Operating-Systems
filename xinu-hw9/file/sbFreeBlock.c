@@ -23,7 +23,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 	//  free blocks.  Use the superblock's locks to guarantee
 	//  mutually exclusive access to the free list, and write
 	//  the changed free list segment(s) back to disk.
-	struct freeblock *freeblk, *free2, *frswizzle;
+	struct freeblock *freeblk, *free2;
 	struct dirblock *swizzle;
 	struct dentry *phw;
 	int diskfd;
@@ -42,7 +42,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		return SYSERR;
 	}
 
-	diskfd = phw - devtab;
+	diskfd =	 phw - devtab;
 	freeblk = psuper->sb_freelst;
 
 	if(freeblk == NULL)
@@ -62,7 +62,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 	if(freeblk->fr_count < FREEBLOCKMAX)
 	{
 		freeblk->fr_free[freeblk->fr_count] = block;//puts block back into list?????
-		freeblk->fr_count++;
+		freeblk->fr_count = freeblk->fr_count+1;
 
 		seek(diskfd, freeblk->fr_blocknum);
 		if(write(diskfd, freeblk, sizeof(struct freeblock))==SYSERR)
@@ -70,19 +70,52 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 			return SYSERR;
 		}   
 				//free2 
-	}	
+	}
+	else//second condition if its greater than or equal
+	{
+		free2 = (struct freeblock*)malloc(sizeof(struct freeblock));//create new block of memory containing the same size as as freeblock
+		free2->fr_blocknum = block;
+		free2->fr_count = 0;//set amount of items to 0 because its a brand new block
+		free2->fr_next = NULL;//nothing after free2 therefore null
+		freeblock->fr_next = free2;//reset tail of freeblock
+		//free2->fr_next = 0;	
+		
+		seek(diskfd, free2->fr_blocknum);
+		if(write(diskfd, free2, sizeof(struct freeblock)) == SYSERR)
+		{
+			return SYSERR;
+		}
+	}
+	if(psuper->sb_freelist == NULL)
+	{
+		freeblock = (struct freeblock*)malloc(sizeof(struct freeblock))//creates new freeblock
+		freeblock->fr_blocknum = block;
+		freeblock->fr_count = 0;//set items in the queue to 0 because its a new block
+		freeblock->fr_next = NULL;//nothing after this block hence set it to NULL
+		
 
-				/*   
-				//if it is greater than or equal to
-				if(freeblk->fr_count >= FREEBLOCKMAX)//after 55 blocks have been allocated
-				{
-				fr_count = 0;//free all space (nuke the freelist)???
-				freeblk->fr_free[freeblk->fr_count] = block;//use all that space for block????
-				}
-				if(psuper->sb_freelst == NULL)//after all blocks have been used
-				{
-				psuper->sb_freelst = freeblk;//I DONT KNOW WHAT TO DO
-				}
-				*/
-				return SYSERR;
+
+		//Begin Swizzle// Make sure address of freeblock is saved as a block number
+		seek(diskfd, block);
+		if(write(diskfd, psuper, sizeof(struct freeblock)) == SYSERR)
+		{
+			return SYSERR;
+		}
+		
+		swizzle = freeblock;
+		dirlst = psuper->sb_dirlst;
+
+		psuper->sb_dirlst = (struct freelst*)swizzle->db_blocknum;
+
+
+		seek(diskfd, psuper->sb_blocknum);
+		if(write(diskfd, psuper, sizeof(struct(freeblock))) == SYSERR)
+		{
+			return SYSERR;
+		}
+		psuper->sb_freelst = swizzle;
+		psuper->dirlst = dirlst;
+	}
+signal(psuper ->sb_freelock);//free up semaphore	
+return SYSERR;
 } 
