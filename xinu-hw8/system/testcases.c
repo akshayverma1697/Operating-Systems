@@ -54,8 +54,8 @@ void testcases(void)
 		printf("Case B: Using malloc to dynamically allocate an array of 10 elements.\n\r");
 		int *array;
         array = malloc(10 * sizeof(int));
-       // printf("Size of array = %d\r\n", (sizeof(array)/(sizeof(array[0])));
-         printFreeList();
+		printf("Size of array = %d\r\n", (sizeof(array))/(sizeof(array[0])));
+        printFreeList();
 		break;
 	case 'C':
 	case 'c':
