@@ -1,4 +1,3 @@
-//TA-BOT:MAILTO joshuah.solito@marquette.edu akshay.verma@marquette.edu
 /**
  * @file     xsh_fish.c
  * @provides xsh_fish
@@ -89,27 +88,6 @@ command xsh_fish(int nargs, char *args[])
 		//   Wait one second for reply to come in, and
 		//   then print contents of fishlist table.
 		
-		for(int i = 0; i < SCHOOLMAX; i++)
-		{
-			if(strncmp(school[i], "list", 4) == 0) // locating named node in school - don't know what named node is supposed to be but case is for "list" so why not
-			{
-				fishSend(bcast, FISH_DIRASK); // send a FISH_DIRASK packet
-				sleep(1000); // wait 1 second for reply
-				
-				// copied from if statement above - if name node was found, I assume it's used
-				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
-					   school[i].mac[0],
-					   school[i].mac[1],
-					   school[i].mac[2],
-					   school[i].mac[3],
-					   school[i].mac[4],
-					   school[i].mac[5]);
-				printf("\t%s\n", school[i].name);
-				
-				return OK;
-			}
-		}
-		
 		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;
 	}
@@ -118,29 +96,6 @@ command xsh_fish(int nargs, char *args[])
 		// TODO: Locate named node in school,
 		//   and send a FISH_GETFILE packet to it.
 		//   FileSharer puts file in system when it arrives.
-		
-		for(int i = 0; i < SCHOOLMAX; i++)
-		{
-			if(strncmp(school[i], "get", 4) == 0) // locating named node in school - don't know what named node is supposed to be but case is for "get" so why not
-			{
-				fishSend(bcast, FISH_GETFILE); // send a FISH_GETFILE packet
-				/*
-				sleep(1000); // wait 1 second for reply
-				
-				// copied from if statement above - if name node was found, I assume it's used
-				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
-					   school[i].mac[0],
-					   school[i].mac[1],
-					   school[i].mac[2],
-					   school[i].mac[3],
-					   school[i].mac[4],
-					   school[i].mac[5]);
-				printf("\t%s\n", school[i].name);
-				*/
-				return OK;
-			}
-		}
-		
 		
 		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;

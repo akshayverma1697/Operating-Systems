@@ -27,13 +27,17 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 	int    diskfd;
 	
     //error checking
+    if ((block < 0) || (block > DISKBLOCKTOTAL))
+    {
+        return SYSERR;
+    }
     
-    if (psuper == NULL)
+    if (NULL == psuper)
     {
 		return SYSERR;
     }
     phw = psuper->sb_disk;
-	if (phw == NULL)
+	if (NULL ==  phw)
     {
 		return SYSERR;
     }
@@ -46,7 +50,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
     //end of error checking
 
     
-    if (psuper->sb_freelst == NULL)//third condition if sb is pointing to null
+    if (free1 == NULL)//third condition if sb is pointing to null
 	{
         free1 = (struct freeblock*)malloc(sizeof(struct freeblock));//create new block of memory containing the same size as as freeblock
 		free1->fr_blocknum = block;
@@ -54,7 +58,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		free1->fr_next = NULL;//nothing after this block hence set it to NULL
 		psuper->sb_freelst = free1;
 		seek(diskfd, block);
-		if (write(diskfd, free1, sizeof(struct freeblock) == SYSERR))
+		if (SYSERR == write(diskfd, free1, sizeof(struct freeblock)))
         {
 			return SYSERR;
         }
@@ -65,7 +69,7 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 		psuper->sb_dirlst = (struct freelst*)dswizzle->db_blocknum;//swizzle head
 		seek(diskfd, psuper->sb_blocknum);
 
-		if (write(diskfd, psuper, sizeof(struct superblock) == SYSERR))
+		if (SYSERR == write(diskfd, psuper, sizeof(struct superblock)))
         {
 			return SYSERR;
         }
@@ -77,9 +81,39 @@ devcall sbFreeBlock(struct superblock *psuper, int block)
 	
  	//guarantee mutually exclusive access to freelist   
     while(free1->fr_next != NULL)
-    {//traverse freelist until it reaches the end      
+    {//traverse freelist until it reaches the end
+        if(free1->fr_blocknum == block)
+        {
+            signal(psuper->sb_freelock);
+            return SYSERR;
+        }
+        
+
+        for(i = 0; i< free1->fr_count; i++)
+        {
+            if(free1->fr_free[i] == block)
+            {
+                signal(psuper->sb_freelock);
+                return SYSERR;
+            }
+        }        
         free1 = free1->fr_next;
     }    
+    
+    if(free1->fr_blocknum == block)
+        {
+            signal(psuper->sb_freelock);
+            return SYSERR;
+        }
+        
+    for(i = 0; i< free1->fr_count; i++)
+    {
+        if(free1->fr_free[i] == block)
+        {
+            signal(psuper->sb_freelock);
+            return SYSERR;
+        }
+    }        
         
     if(free1->fr_count < FREEBLOCKMAX)//Case 1: If there is space in the final accounting block  (freeblock->fr_count < FREEBLOCKMAX)
     {
