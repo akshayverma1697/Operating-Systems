@@ -88,6 +88,28 @@ command xsh_fish(int nargs, char *args[])
 		//   Wait one second for reply to come in, and
 		//   then print contents of fishlist table.
 		
+        
+        //locate named node in school
+        printf("Known FISH nodes in school:\n");
+		for (i = 0; i < SCHOOLMAX; i++)
+		{
+			if (school[i].used)
+            {
+                
+				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
+					   school[i].mac[0],
+					   school[i].mac[1],
+					   school[i].mac[2],
+					   school[i].mac[3],
+					   school[i].mac[4],
+					   school[i].mac[5]);
+				printf("\t%s\n", school[i].name);
+			}
+		}
+		
+		
+        
+        
 		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;
 	}
