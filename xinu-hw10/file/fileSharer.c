@@ -172,9 +172,9 @@ void fishGetFile(uchar *packet)
 		char tempFile;
 		for(i =1+FNAMLEN; i < paySIZE; i++)
 		{
-			if((tempFILE = fileGetChar(fd)) != SYSERR)
+			if((tempFile = fileGetChar(fd)) != SYSERR)
 			{
-				eg->data[i] = temp;
+				eg->data[i] = tempFile;
 			}
 			else
 			{
@@ -192,8 +192,43 @@ void fishGetFile(uchar *packet)
 	write(ETH0, packet, ETHER_SIZE + paySIZE);
 }
 
+/*----------------------------------------------------------------------
+ *fishHaveFile
+ *----------------------------------------------------------------------
+ */ 
+void fishHaveFile(uchar *packet)
+{
+	struct ethergram *eg = (struct ethergram *)packet;
+	int sizeOfPacket = ETHER_SIZE + DISKBLOCKLEN + FNAMLEN + 1;
+	int i;
 
-
+	int c;
+	char tempFile[FNAMLEN + 1];
+	bzero(tempFile, FNAMLEN+1);
+	
+	if((c=fileOpen(tempFile)) != SYSERR)
+	{
+		if(fileDelete(c) == SYSERR)
+		{
+			printf("File taken\n");
+			return;
+		}
+	}
+	
+	if((c = fileCreate(tempFile)) != SYSERR)
+	{
+		for(i = FNAMLEN+1; i<DISKBLOCKLEN+FNAMLEN+1; i++)
+		{
+			filePutChar(c,eg->data[i]); 
+		}
+		fileClose(c);
+		printf("Here is the file\n");
+	}
+	else
+	{
+		printf("NO FILE");
+	}
+}
 
 /*-----------------------------------------------------------------------
  *fishNoFile - No files
@@ -253,6 +288,8 @@ int fileSharer(int dev)
 				fishGetFile(packet);
 				break;
 			case FISH_HAVEFILE:
+				fishHaveFile(packet);
+				break;
 			case FISH_NOFILE:
 				fishNoFile(packet);
 				break;
