@@ -30,23 +30,23 @@ static int fishSend(uchar *dst, char fishtype)
 	// Source: Get my MAC address from the Ethernet device
 	control(ETH0, ETH_CTRL_GET_MAC, (long)ppkt, 0);
 	ppkt += ETH_ADDR_LEN;
-		
+
 	// Type: Special "3250" packet protocol.
 	*ppkt++ = ETYPE_FISH >> 8;
 	*ppkt++ = ETYPE_FISH & 0xFF;
-		
+
 	*ppkt++ = fishtype;
-		
+
 	for (i = 1; i < ETHER_MINPAYLOAD; i++)
 	{
 		*ppkt++ = i;
 	}
-		
+
 	write(ETH0, packet, ppkt - packet);
-	
+
 	return OK;
 }
-		
+
 /**
  * Shell command (fish) is file sharing client.
  * @param args array of arguments
@@ -58,9 +58,9 @@ command xsh_fish(int nargs, char *args[])
 	int i = 0;
 
 	if (nargs == 2 && strncmp(args[1], "ping", 4) == 0)
-    {
+	{
 		fishSend(bcast, FISH_PING);
-		
+
 		sleep(1000);
 
 		printf("Known FISH nodes in school:\n");
@@ -69,12 +69,12 @@ command xsh_fish(int nargs, char *args[])
 			if (school[i].used)
 			{
 				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
-					   school[i].mac[0],
-					   school[i].mac[1],
-					   school[i].mac[2],
-					   school[i].mac[3],
-					   school[i].mac[4],
-					   school[i].mac[5]);
+						school[i].mac[0],
+						school[i].mac[1],
+						school[i].mac[2],
+						school[i].mac[3],
+						school[i].mac[4],
+						school[i].mac[5]);
 				printf("\t%s\n", school[i].name);
 			}
 		}
@@ -87,29 +87,28 @@ command xsh_fish(int nargs, char *args[])
 		//   and send a FISH_DIRASK packet to it.
 		//   Wait one second for reply to come in, and
 		//   then print contents of fishlist table.
-		
-        
-        //locate named node in school
-        printf("Known FISH nodes in school:\n");
+
+
+		//locate named node in school
+		printf("Known FISH nodes in school:\n");
 		for (i = 0; i < SCHOOLMAX; i++)
 		{
 			if (school[i].used)
-            {
-                
+			{    
 				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
-					   school[i].mac[0],
-					   school[i].mac[1],
-					   school[i].mac[2],
-					   school[i].mac[3],
-					   school[i].mac[4],
-					   school[i].mac[5]);
+						school[i].mac[0],
+						school[i].mac[1],
+						school[i].mac[2],
+						school[i].mac[3],
+						school[i].mac[4],
+						school[i].mac[5]);
 				printf("\t%s\n", school[i].name);
 			}
 		}
-		
-		
-        
-        
+
+
+
+
 		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;
 	}
@@ -118,23 +117,23 @@ command xsh_fish(int nargs, char *args[])
 		// TODO: Locate named node in school,
 		//   and send a FISH_GETFILE packet to it.
 		//   FileSharer puts file in system when it arrives.
-		
+
 		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;
 	}
 	else
-    {
-        fprintf(stdout, "Usage: fish [ping | list <node> | get <node> <filename>]\n");
-        fprintf(stdout, "Simple file sharing protocol.\n");
-        fprintf(stdout, "ping - lists available FISH nodes in school.\n");
-        fprintf(stdout, "list <node> - lists directory contents at node.\n");
-        fprintf(stdout, "get <node> <file> - requests a remote file.\n");
-        fprintf(stdout, "\t--help\t display this help and exit\n");
+	{
+		fprintf(stdout, "Usage: fish [ping | list <node> | get <node> <filename>]\n");
+		fprintf(stdout, "Simple file sharing protocol.\n");
+		fprintf(stdout, "ping - lists available FISH nodes in school.\n");
+		fprintf(stdout, "list <node> - lists directory contents at node.\n");
+		fprintf(stdout, "get <node> <file> - requests a remote file.\n");
+		fprintf(stdout, "\t--help\t display this help and exit\n");
 
-        return 0;
-    }
+		return 0;
+	}
 
 
 
-    return OK;
+	return OK;
 }
