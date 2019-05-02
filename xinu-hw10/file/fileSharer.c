@@ -116,9 +116,9 @@ void fishDirask(uchar *packet)
  *fishDirList - Print all the files available to be shared
  *-----------------------------------------------------------------------
  */ 
-void fishDirList(uchar *packet)
+int fishDirList(uchar *packet)
 {
-	uchar *ppkt = packet;
+	//uchar *ppkt = packet;
 	struct ethergram *eg = (struct ethergram *)packet;
 	
 	int i = 0;
@@ -131,6 +131,69 @@ void fishDirList(uchar *packet)
 	return OK;
 
 }
+
+/*-----------------------------------------------------------------------
+ *fishGetFile--
+ * ----------------------------------------------------------------------
+ */
+void fishGetFile(uchar *packet)
+{
+	uchar *ppkt = packet;
+	struct ethergram *eg = (struct ethergram *)packet;
+	
+
+	memcpy(eg->dst, eg->src, ETH_ADDR_LEN);
+	memcpy(eg->src, myMAC, ETH_ADDR_LEN);
+	bzero(&eg->data[1+FNAMLEN], ETHER_MINPAYLOAD);
+
+	int fileFOUND = 0; //0 refers to FALSE
+
+	int i = 0; //counter
+	for(i = 0; i < DIRENTRIES; i++)
+	{
+		if(supertab->sb_dirlst->db_fnodes[i].fn_state)
+		{
+			if(strncmp(supertab->sb_dirlst->db_fnodes[i].fn_name, &eg->data[1], FNAMLEN) == 0)
+			{
+				fileFOUND = 1; //set to TRUE if it is able to get in the if statement that checks if they are equivalent
+				break;
+			}
+		}
+	}
+	int paySIZE = 0;
+
+	if(fileFOUND == 1)//if true
+	{
+		//FISH becomes HAVE_FILE
+		eg->data[0] = FISH_HAVEFILE;
+		paySIZE = DISKBLOCKLEN + FNAMLEN + 1;
+		
+		int fd = fileOpen(&eg->data[1]);
+		char tempFile;
+		for(i =1+FNAMLEN; i < paySIZE; i++)
+		{
+			if((tempFILE = fileGetChar(fd)) != SYSERR)
+			{
+				eg->data[i] = temp;
+			}
+			else
+			{
+				eg->data[i] = 0;
+			}
+		}
+		fileClose(fd);
+	}	
+	else//if no file was ever found
+	{
+		eg->data[0] = FISH_NOFILE;
+		paySIZE = ETHER_MINPAYLOAD;
+	}
+
+	write(ETH0, packet, ETHER_SIZE + paySIZE);
+}
+
+
+
 
 /*-----------------------------------------------------------------------
  *fishNoFile - No files
@@ -187,6 +250,8 @@ int fileSharer(int dev)
 				fishDirList(packet);
 				break;
 			case FISH_GETFILE:
+				fishGetFile(packet);
+				break;
 			case FISH_HAVEFILE:
 			case FISH_NOFILE:
 				fishNoFile(packet);

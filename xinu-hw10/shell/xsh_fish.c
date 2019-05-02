@@ -90,26 +90,42 @@ command xsh_fish(int nargs, char *args[])
 
 
 		//locate named node in school
-		printf("Known FISH nodes in school:\n");
+		int i = 0;
 		for (i = 0; i < SCHOOLMAX; i++)
 		{
-			if (school[i].used)
-			{    
-				printf("\t%02X:%02X:%02X:%02X:%02X:%02X",
-						school[i].mac[0],
-						school[i].mac[1],
-						school[i].mac[2],
-						school[i].mac[3],
-						school[i].mac[4],
-						school[i].mac[5]);
-				printf("\t%s\n", school[i].name);
+			if (strncmp(school[i].name, args[2], FISH_MAXNAME) == 0) //if it is zero we have found the correct node because 0 refers to equivalent
+			{
+				printf("Fish Found");
+				break;
 			}
 		}
+		if(i == SCHOOLMAX) //if i reaches the end and never retrieves through our comparison we have not found the fish
+		{
+			printf("Fish not found");
+		}
+
+		bzero(fishlist, sizeof(fishlist));//zero out fishlist to see only files that a node has
+
+		int filesInNode = 0;
+		fishSend(school[i].mac, FISHDIRASK);//send a FISH_DIRASK packet to the node
+
+		sleep(1000);//wait 1 second
+
+		char arrayOfFiles[FNAMLEN + 1];
+		bzero(temp, FNAMLEN+1);
+		
+		//print contents of a fishlist table
+		printf("Files Found %s:\n", args[2]);
+		for(i=0; i<DIRENTRIES; i++)
+		{
+			if(strlen(fishlist[i]) == 0)
+			{
+				print
+		}
+
+		printf("");		
 
 
-
-
-		printf("No FiSh \"%s\" found in school.\n", args[2]);
 		return OK;
 	}
 	else if (nargs == 4 && strncmp(args[1], "get", 4) == 0)
