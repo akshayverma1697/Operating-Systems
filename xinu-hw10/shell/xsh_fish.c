@@ -96,32 +96,34 @@ command xsh_fish(int nargs, char *args[])
 			if (strncmp(school[i].name, args[2], FISH_MAXNAME) == 0) //if it is zero we have found the correct node because 0 refers to equivalent
 			{
 				printf("Fish Found");
-				bzero(fishList, sizeof(fishlist));//zero out files to only see what files a node has
 				break;
 			}
+			
+			bzero(fishlist, sizeof(fishlist));//zero out files to only see what files a node has
+            
+            int filesInNode = 0;
+            fishSend(school[i].mac, FISH_DIRASK);//send a FISH_DIRASK packet to the node
+
+            sleep(1000);//wait 1 second
+
+            char arrayOfFiles[FNAMLEN + 1];
+            bzero(arrayOfFiles, FNAMLEN+1);
+            
+            //print contents of a fishlist table
+            printf("Files Found %s:\n", args[2]);
+            
+            for(i=0; i<DIRENTRIES; i++)
+            {
+                printf("%s", fishlist[i]);
+            }	
 		}
 		if(i == SCHOOLMAX) //if i reaches the end and never retrieves through our comparison we have not found the fish
 		{
 			printf("Fish not found");
 		}
 
-		bzero(fishlist, sizeof(fishlist));//zero out fishlist to see only files that a node has
 
-		int filesInNode = 0;
-		fishSend(school[i].mac, FISH_DIRASK);//send a FISH_DIRASK packet to the node
 
-		sleep(1000);//wait 1 second
-
-		char arrayOfFiles[FNAMLEN + 1];
-		bzero(arrayOfFiles, FNAMLEN+1);
-		
-		//print contents of a fishlist table
-		printf("Files Found %s:\n", args[2]);
-		
-		for(i=0; i<DIRENTRIES; i++)
-		{
-			printf("%s", fishlist[i]);
-		}	
 		
 
 		return OK;
