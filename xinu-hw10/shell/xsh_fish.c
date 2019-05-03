@@ -96,6 +96,7 @@ command xsh_fish(int nargs, char *args[])
 			if (strncmp(school[i].name, args[2], FISH_MAXNAME) == 0) //if it is zero we have found the correct node because 0 refers to equivalent
 			{
 				printf("Fish Found");
+				bzero(fishList, sizeof(fishlist));//zero out files to only see what files a node has
 				break;
 			}
 		}
@@ -116,15 +117,12 @@ command xsh_fish(int nargs, char *args[])
 		
 		//print contents of a fishlist table
 		printf("Files Found %s:\n", args[2]);
-		/*for(i=0; i<DIRENTRIES; i++)
+		
+		for(i=0; i<DIRENTRIES; i++)
 		{
-			if(strlen(fishlist[i]) == 0)
-			{
-				print
-		}
-
-		printf("");		
-		*/
+			printf("%s", fishlist[i]);
+		}	
+		
 
 		return OK;
 	}
@@ -133,8 +131,23 @@ command xsh_fish(int nargs, char *args[])
 		// TODO: Locate named node in school,
 		//   and send a FISH_GETFILE packet to it.
 		//   FileSharer puts file in system when it arrives.
-
-		printf("No FiSh \"%s\" found in school.\n", args[2]);
+		int i;
+		
+		for(i = 0; i<SCHOOLMAX; i++)
+		{
+			if(strncmp(school[i].name, args[2], FISH_MAXNAME) == 0)
+			{
+				break;
+			}
+			
+		}
+		if(i == SCHOOLMAX)
+		{
+			printf("Fish not found");
+			return OK;
+		}
+		
+		fishSend(school[i].mac, FISH_GETFILE);
 		return OK;
 	}
 	else
