@@ -101,19 +101,19 @@ command xsh_fish(int nargs, char *args[])
                 fishSend(school[i].mac, FISH_DIRASK);//send a FISH_DIRASK packet to the node
 
                 sleep(1000);//wait 1 second
-
+                /*
                 char arrayOfFiles[FNAMLEN + 1];
                 bzero(arrayOfFiles, FNAMLEN+1);
-                
+                */
                 //print contents of a fishlist table
                 printf("Files Found %s:\n", args[2]);
                 
                 for(i=0; i<DIRENTRIES; i++)
                 {
                     printf("%s\n", fishlist[i]);
-                }	
-                //break;
-			}
+                }
+                
+            }
 			
 			
 		}
