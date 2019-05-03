@@ -120,9 +120,9 @@ int fishDirList(uchar *packet)
 {
 	//uchar *ppkt = packet;
 	struct ethergram *eg = (struct ethergram *)packet;
-	
-	int i = 0;
-	for(i; i<DIRENTRIES; i++)
+	printf("Printing all files able to be shared\n");
+	//int i = 0;
+	for(int i = 0; i<DIRENTRIES; i++)
 	{
 		strncpy(fishlist[i], &eg->data[i*FNAMLEN+1], FNAMLEN);//copy all of the packet data and saving it into fishlist to be printed
 		//this will be used because it will print all the files available to be shared
@@ -145,51 +145,59 @@ void fishGetFile(uchar *packet)
 	memcpy(eg->dst, eg->src, ETH_ADDR_LEN);
 	memcpy(eg->src, myMAC, ETH_ADDR_LEN);
 	bzero(&eg->data[1+FNAMLEN], ETHER_MINPAYLOAD);
+    printf("Entered fishgetFile\n");
+    printf("this is eg data onne %s\n", &eg->data[1]);
+    
 
 	int fileFOUND = 0; //0 refers to FALSE
-
+    int j = 0;
 	int i = 0; //counter
+	int packetLength;
+	char tempFile;
 	for(i = 0; i < DIRENTRIES; i++)
 	{
-		if(supertab->sb_dirlst->db_fnodes[i].fn_state)
+		if(supertab->sb_dirlst->db_fnodes[i].fn_state == FILE_USED)
 		{
 			if(strncmp(supertab->sb_dirlst->db_fnodes[i].fn_name, &eg->data[1], FNAMLEN) == 0)
 			{
-				fileFOUND = 1; //set to TRUE if it is able to get in the if statement that checks if they are equivalent
-				break;
+                printf("FILE is FOUND\n");
+				fileFOUND = 1;//set to TRUE if it is able to get in the if statement that checks if they are equivalent
+				eg->data[0]=FISH_HAVEFILE;
+                ppkt++;
+                ppkt = ppkt + FNAMLEN;
+				
+                int fd = fileOpen(&eg->data[1]);
+                while(j<DISKBLOCKLEN)
+                {
+                    if((tempFile = fileGetChar(fd)) != SYSERR)
+                    {
+                        eg->data[(FNAMLEN+1+j)] = tempFile;
+                    }
+                    else
+                    {
+                        eg->data[(FNAMLEN+1+j)] = 0;
+                    }
+                    j++;
+                }
+                fileClose(fd);
+                ppkt = ppkt + DISKBLOCKLEN;
+                break;
 			}
 		}
 	}
-	int paySIZE = 0;
+	if(fileFOUND == 0)
+    {
+        eg->data[0]=FISH_NOFILE;
+        ppkt++;
+        ppkt = ppkt + FNAMLEN;
+    }
+    packetLength = ETHER_SIZE + ETHER_MINPAYLOAD;
+    if((ppkt-packet)>(ETHER_SIZE + ETHER_MINPAYLOAD))
+    {
+        packetLength = (ppkt-packet);
+    }
 
-	if(fileFOUND == 1)//if true
-	{
-		//FISH becomes HAVE_FILE
-		eg->data[0] = FISH_HAVEFILE;
-		paySIZE = DISKBLOCKLEN + FNAMLEN + 1;
-		
-		int fd = fileOpen(&eg->data[1]);
-		char tempFile;
-		for(i =1+FNAMLEN; i < paySIZE; i++)
-		{
-			if((tempFile = fileGetChar(fd)) != SYSERR)
-			{
-				eg->data[i] = tempFile;
-			}
-			else
-			{
-				eg->data[i] = 0;
-			}
-		}
-		fileClose(fd);
-	}	
-	else//if no file was ever found
-	{
-		eg->data[0] = FISH_NOFILE;
-		paySIZE = ETHER_MINPAYLOAD;
-	}
-
-	write(ETH0, packet, ETHER_SIZE + paySIZE);
+	write(ETH0, packet, packetLength);
 }
 
 /*----------------------------------------------------------------------
@@ -198,24 +206,27 @@ void fishGetFile(uchar *packet)
  */ 
 void fishHaveFile(uchar *packet)
 {
-	struct ethergram *eg = (struct ethergram *)packet;
-	int sizeOfPacket = ETHER_SIZE + DISKBLOCKLEN + FNAMLEN + 1;
+    struct ethergram *eg = (struct ethergram *)packet;
+	int sizeOfPacket = DISKBLOCKLEN + FNAMLEN + 1;
 	int i;
 
 	int c;
 	char tempFile[FNAMLEN + 1];
 	bzero(tempFile, FNAMLEN+1);
+    strncpy(tempFile, &eg->data[1], FNAMLEN);
+    //tempFile = &packet;
 	
-	if((c=fileOpen(tempFile)) != SYSERR)
+	if((c = fileOpen((char *) tempFile)) != SYSERR)
 	{
 		if(fileDelete(c) == SYSERR)
 		{
 			printf("File taken\n");
 			return;
 		}
+		//printf("File not deleted?\n"); // check
 	}
 	
-	if((c = fileCreate(tempFile)) != SYSERR)
+	if((c = fileCreate((char *) tempFile)) != SYSERR)
 	{
 		for(i = FNAMLEN+1; i<DISKBLOCKLEN+FNAMLEN+1; i++)
 		{
@@ -223,10 +234,11 @@ void fishHaveFile(uchar *packet)
 		}
 		fileClose(c);
 		printf("Here is the file\n");
+        return OK;
 	}
 	else
 	{
-		printf("NO FILE");
+		printf("FAILURE--NO FILE");
 	}
 }
 
@@ -234,9 +246,10 @@ void fishHaveFile(uchar *packet)
  *fishNoFile - No files
  * ----------------------------------------------------------------------
  */
-void fishNoFile (uchar *pckt)
+void fishNoFile(uchar *packet)
 {
-	printf("No Files"); //if this case is entered we print that no files can be found
+	struct ethergram *eg = (struct ethergram *)packet;
+	printf("Unable to find file \n"); //if this case is entered we print that no files can be found
 }
 
 /*------------------------------------------------------------------------

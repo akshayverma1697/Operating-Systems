@@ -47,6 +47,47 @@ static int fishSend(uchar *dst, char fishtype)
 	return OK;
 }
 
+static int fishSendFileName(uchar *dst, char fishtype, char *fileName)
+{
+	uchar packet[PKTSZ];
+	uchar *ppkt = packet;
+	int i = 0;
+
+	// Zero out the packet buffer.
+	bzero(packet, PKTSZ);
+
+	for (i = 0; i < ETH_ADDR_LEN; i++)
+	{
+		*ppkt++ = dst[i];
+	}
+
+	// Source: Get my MAC address from the Ethernet device
+	control(ETH0, ETH_CTRL_GET_MAC, (long)ppkt, 0);
+	ppkt += ETH_ADDR_LEN;
+
+	// Type: Special "3250" packet protocol.
+	*ppkt++ = ETYPE_FISH >> 8;
+	*ppkt++ = ETYPE_FISH & 0xFF;
+
+	*ppkt++ = fishtype;
+    
+    for(i=1; i < ETHER_MINPAYLOAD; i++)
+    {
+        if(i<(FNAMLEN+1))
+        {
+            *ppkt++ = fileName[(i-1)];
+        }
+        else
+        {
+            *ppkt++ = i;//move to the end of payloads
+        }
+    }
+        
+	write(ETH0, packet, ppkt - packet);
+
+	return OK;
+}
+
 /**
  * Shell command (fish) is file sharing client.
  * @param args array of arguments
@@ -101,10 +142,7 @@ command xsh_fish(int nargs, char *args[])
                 fishSend(school[i].mac, FISH_DIRASK);//send a FISH_DIRASK packet to the node
 
                 sleep(1000);//wait 1 second
-                /*
-                char arrayOfFiles[FNAMLEN + 1];
-                bzero(arrayOfFiles, FNAMLEN+1);
-                */
+                
                 //print contents of a fishlist table
                 printf("Files Found %s:\n", args[2]);
                 
@@ -150,7 +188,7 @@ command xsh_fish(int nargs, char *args[])
 			return OK;
 		}
 		
-		fishSend(school[i].mac, FISH_GETFILE);
+		fishSendFileName(school[i].mac, FISH_GETFILE, args[3]);
 		return OK;
 	}
 	else
